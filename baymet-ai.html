@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baymet AI — Monitor Inteligente de Metano</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde-oscuro: #0B6E4F;
+    --verde-medio: #0E8A64;
+    --verde-claro: #4CAF50;
+    --azul: #1B3C73;
+    --azul-claro: #2A5BA8;
+    --blanco: #FFFFFF;
+    --gris-claro: #F5F5F2;
+    --gris-medio: #E8E8E4;
+    --gris-texto: #6B7280;
+    --texto-oscuro: #111827;
+    --rojo: #DC2626;
+    --amarillo: #D97706;
+    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Nunito', sans-serif;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --shadow-card: 0 2px 20px rgba(11,110,79,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--gris-claro);
+    color: var(--texto-oscuro);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(100deg, #0a1f44 0%, #1B3C73 45%, #0B6E4F 100%);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.28);
+    overflow: hidden;
+  }
+  /* Burbujas decorativas del header */
+  header::before {
+    content: '';
+    position: absolute;
+    top: -18px; right: 220px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #4dd4f0, #1a8fc4);
+    opacity: 0.18;
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    top: 10px; right: 180px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #6ee7b7, #059669);
+    opacity: 0.22;
+    pointer-events: none;
+  }
+  /* Franja de tagline inferior */
+  .header-tagline-bar {
+    background: linear-gradient(90deg, rgba(76,175,80,0.18), rgba(29,185,184,0.12), rgba(76,175,80,0.18));
+    border-top: 1px solid rgba(76,175,80,0.25);
+    text-align: center;
+    padding: 3px 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .header-tagline-bar span { color: #86efac; }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    gap: 1rem;
+    padding: 0 2rem;
+    position: relative;
+  }
+  /* Logo imagen real */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo img {
+    height: 46px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  }
+  .header-badge {
+    background: rgba(76,175,80,0.18);
+    border: 1px solid rgba(76,175,80,0.45);
+    color: #86efac;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .header-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+  nav { display: flex; gap: 4px; }
+  nav a {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    padding: 7px 15px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+  }
+  nav a:hover { color: white; background: rgba(255,255,255,0.1); }
+  nav a.active {
+    color: white;
+    background: rgba(76,175,80,0.22);
+    border: 1px solid rgba(76,175,80,0.35);
+  }
+
+  /* ── LAYOUT ── */
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  /* ── SECCIONES ── */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── PAGE HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--verde-oscuro) 100%);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(76,175,80,0.12);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 40%;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #86efac;
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.75rem;
+  }
+  .hero p {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.8);
+    max-width: 520px;
+    line-height: 1.65;
+  }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    main { padding: 1rem; }
+    nav a { padding: 6px 9px; font-size: 12px; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--blanco);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--gris-medio);
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--texto-oscuro);
+    margin-bottom: 0.25rem;
+  }
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--gris-texto);
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── MEDIDOR PRINCIPAL ── */
+  .meter-display {
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+  .meter-value-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 1.25rem;
+  }
+  .meter-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 6px solid var(--gris-medio);
+    transition: border-color 0.6s ease;
+  }
+  .meter-ring.nivel-bajo { border-color: #22c55e; }
+  .meter-ring.nivel-medio { border-color: #f59e0b; }
+  .meter-ring.nivel-alto { border-color: #ef4444; }
+  .meter-ring.nivel-critico { border-color: #7f1d1d; animation: pulse-ring 1.2s infinite; }
+  @keyframes pulse-ring { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); } }
+  .meter-number {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    transition: color 0.4s;
+  }
+  .meter-unit { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+  .nivel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.4s;
+  }
+  .nivel-badge .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .badge-bajo { background: #dcfce7; color: #15803d; }
+  .badge-medio { background: #fef3c7; color: #92400e; }
+  .badge-alto { background: #fee2e2; color: #991b1b; }
+  .badge-critico { background: #7f1d1d; color: #fecaca; }
+
+  /* ── BOTÓN SIMULACIÓN ── */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-claro));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(11,110,79,0.3); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--verde-oscuro);
+    border: 1.5px solid var(--verde-oscuro);
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--verde-oscuro); color: white; }
+
+  .btn-group { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.25rem; }
+
+  /* ── ANÁLISIS LOADING ── */
+  .loading-bar-wrap { margin: 1rem 0 0.5rem; }
+  .loading-label { font-size: 12px; color: var(--gris-texto); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .loading-bar {
+    height: 4px;
+    background: var(--gris-medio);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .loading-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--verde-oscuro), var(--verde-claro));
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.05s linear;
+  }
+
+  /* ── RESULTADO INTERPRETACIÓN ── */
+  .resultado-card {
+    background: var(--gris-claro);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    border-left: 4px solid var(--verde-claro);
+    transition: border-color 0.4s;
+  }
+  .resultado-card.alerta-media { border-left-color: #f59e0b; background: #fffbeb; }
+  .resultado-card.alerta-alta { border-left-color: #ef4444; background: #fef2f2; }
+  .resultado-card.alerta-critica { border-left-color: #7f1d1d; background: #fef2f2; }
+  .resultado-titulo {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .resultado-texto { font-size: 0.9rem; color: #374151; line-height: 1.6; }
+
+  /* ── RECOMENDACIONES ── */
+  .recs-list { list-style: none; padding: 0; margin-top: 0.75rem; }
+  .recs-list li {
+    font-size: 0.85rem;
+    padding: 6px 0 6px 20px;
+    position: relative;
+    color: #374151;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .recs-list li:last-child { border-bottom: none; }
+  .recs-list li::before {
+    content: '›';
+    position: absolute;
+    left: 4px;
+    color: var(--verde-oscuro);
+    font-weight: 700;
+  }
+
+  /* ── STATS MINI ── */
+  .stat-mini {
+    text-align: center;
+    padding: 1rem;
+    background: var(--gris-claro);
+    border-radius: var(--radius-md);
+  }
+  .stat-mini-num {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--verde-oscuro);
+    line-height: 1;
+  }
+  .stat-mini-label { font-size: 11px; color: var(--gris-texto); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── CHAT ── */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 520px;
+    background: var(--blanco);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--gris-medio);
+    overflow: hidden;
+  }
+  .chat-header {
+    background: linear-gradient(90deg, var(--azul), var(--verde-oscuro));
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chat-avatar {
+    width: 36px; height: 36px;
+    background: rgba(76,175,80,0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(76,175,80,0.5);
+  }
+  .chat-avatar svg { width: 18px; height: 18px; fill: #86efac; }
+  .chat-header-info h3 {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+  }
+  .chat-header-info p { font-size: 11px; color: #86efac; }
+  .chat-online { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-left: auto; animation: blink 2s infinite; }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--gris-medio); border-radius: 2px; }
+  .msg {
+    max-width: 82%;
+    animation: msgIn 0.25s ease;
+  }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .msg-bot { align-self: flex-start; }
+  .msg-user { align-self: flex-end; }
+  .msg-bubble {
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .msg-bot .msg-bubble {
+    background: var(--gris-claro);
+    color: var(--texto-oscuro);
+    border-bottom-left-radius: 4px;
+  }
+  .msg-user .msg-bubble {
+    background: linear-gradient(135deg, var(--verde-oscuro), var(--azul));
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-time { font-size: 10px; color: var(--gris-texto); margin-top: 3px; padding: 0 4px; }
+  .msg-user .msg-time { text-align: right; }
+  .typing-indicator {
+    display: none;
+    align-self: flex-start;
+  }
+  .typing-indicator.visible { display: flex; }
+  .typing-bubble {
+    background: var(--gris-claro);
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius-md);
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: var(--gris-texto);
+    border-radius: 50%;
+    animation: typingDot 1.4s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingDot { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
+  .chat-input-area {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--gris-medio);
+    display: flex;
+    gap: 0.5rem;
+    background: var(--blanco);
+  }
+  .chat-input {
+    flex: 1;
+    border: 1.5px solid var(--gris-medio);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--texto-oscuro);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--gris-claro);
+  }
+  .chat-input:focus { border-color: var(--verde-oscuro); background: white; }
+  .chat-send {
+    background: var(--verde-oscuro);
+    border: none;
+    border-radius: var(--radius-md);
+    width: 40px; height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .chat-send:hover { background: var(--verde-medio); }
+  .chat-send svg { width: 16px; height: 16px; fill: white; }
+  .chat-suggestions {
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--gris-medio);
+    background: var(--gris-claro);
+  }
+  .chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 14px;
+    border: 1.5px solid var(--verde-oscuro);
+    color: var(--verde-oscuro);
+    background: white;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .chip:hover { background: var(--verde-oscuro); color: white; }
+
+  /* ── EDUCACIÓN ── */
+  .edu-section-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--texto-oscuro);
+    margin-bottom: 0.35rem;
+  }
+  .edu-section-sub { font-size: 0.9rem; color: var(--gris-texto); margin-bottom: 1.5rem; }
+  .info-card {
+    background: var(--blanco);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    border: 1px solid var(--gris-medio);
+    box-shadow: var(--shadow-card);
+  }
+  .info-icon {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .info-icon svg { width: 22px; height: 22px; }
+  .info-icon.verde { background: #dcfce7; }
+  .info-icon.verde svg { fill: #15803d; }
+  .info-icon.azul { background: #dbeafe; }
+  .info-icon.azul svg { fill: #1d4ed8; }
+  .info-icon.amarillo { background: #fef3c7; }
+  .info-icon.amarillo svg { fill: #92400e; }
+  .info-card h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .info-card p { font-size: 0.875rem; color: #4b5563; line-height: 1.65; }
+
+  .timeline { position: relative; padding-left: 1.5rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--verde-claro), var(--azul));
+  }
+  .timeline-item { position: relative; margin-bottom: 1.25rem; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 6px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--verde-oscuro);
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--verde-oscuro);
+  }
+  .timeline-item h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; }
+  .timeline-item p { font-size: 0.825rem; color: var(--gris-texto); }
+
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .risk-table th { background: var(--gris-claro); padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gris-texto); }
+  .risk-table td { padding: 10px 12px; border-top: 1px solid var(--gris-medio); }
+  .risk-table tr:hover td { background: var(--gris-claro); }
+  .risk-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    color: var(--gris-texto);
+    border-top: 1px solid var(--gris-medio);
+    margin-top: 3rem;
+  }
+  .footer-logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--verde-oscuro);
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+  }
+
+  /* ── MEDIDOR BARRA ── */
+  .nivel-bar-wrap { margin: 1.25rem 0 0.75rem; }
+  .nivel-bar-label { font-size: 12px; color: var(--gris-texto); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .nivel-bar {
+    height: 8px;
+    background: var(--gris-medio);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .nivel-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1), background 0.6s;
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+  }
+  .nivel-fill.medio { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .nivel-fill.alto { background: linear-gradient(90deg, #ef4444, #f87171); }
+  .nivel-fill.critico { background: linear-gradient(90deg, #7f1d1d, #dc2626); }
+
+  .nivel-ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .nivel-ticks span { font-size: 10px; color: var(--gris-texto); }
+
+  /* ── ALERT BANNER ── */
+  .alert-banner {
+    display: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert-banner.visible { display: flex; animation: fadeIn 0.3s ease; }
+  .alert-banner.info { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
+  .alert-banner.warning { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+  .alert-banner.danger { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+
+  /* ── LECTURA HISTÓRICA ── */
+  .historial { margin-top: 1.25rem; }
+  .historial-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gris-texto); font-weight: 600; margin-bottom: 0.75rem; }
+  .hist-list { display: flex; flex-direction: column; gap: 6px; }
+  .hist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--gris-texto);
+    padding: 6px 10px;
+    background: var(--gris-claro);
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+  }
+  .hist-item:hover { background: var(--gris-medio); }
+  .hist-val { font-family: var(--font-display); font-weight: 700; color: var(--texto-oscuro); min-width: 60px; }
+  .hist-time { margin-left: auto; }
+
+  /* ── INPUTS MANUALES ── */
+  .input-manual { display: flex; gap: 8px; align-items: center; margin-top: 0.75rem; }
+  .input-manual input[type=number] {
+    width: 90px;
+    border: 1.5px solid var(--gris-medio);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--texto-oscuro);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--gris-claro);
+  }
+  .input-manual input:focus { border-color: var(--verde-oscuro); background: white; }
+  .input-manual label { font-size: 0.875rem; color: var(--gris-texto); }
+
+  /* ── STATUS CHIPS ── */
+  .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 1rem; }
+  .status-item {
+    padding: 0.75rem;
+    background: var(--gris-claro);
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+  .status-item-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gris-texto); margin-bottom: 4px; }
+  .status-item-val { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <img src="/mnt/user-data/uploads/1777247223849_image.png" alt="Baymet" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <!-- Fallback texto si la imagen no carga -->
+      <div style="display:none; align-items:center; gap:8px;">
+        <div style="width:38px;height:38px;background:linear-gradient(135deg,#4CAF50,#0B6E4F);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3" opacity=".8"/><circle cx="8" cy="14" r="2" opacity=".6"/><circle cx="15" cy="13" r="2.5" opacity=".7"/></svg>
+        </div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:white;letter-spacing:-0.5px;">BAY<span style="color:#4CAF50;">MET</span></span>
+      </div>
+    </div>
+    <nav>
+      <a class="active" onclick="showSection('monitor')">Monitor</a>
+      <a onclick="showSection('asistente')">🦦 Bayanito IA</a>
+      <a onclick="showSection('educacion')">Educación</a>
+    </nav>
+  </div>
+  <div class="header-tagline-bar">Adiós metano, <span>energía en mano</span> · Embalse del Bayano, Panamá 🇵🇦</div>
+</header>
+
+<main>
+
+  <!-- ══════════════ SECCIÓN MONITOR ══════════════ -->
+  <section class="section active" id="sec-monitor">
+
+    <div class="hero">
+      <div class="hero-eyebrow">Bayano, Panamá — Sistema de monitoreo activo</div>
+      <h1>Monitoreo inteligente<br>de metano en tiempo real</h1>
+      <p>Sistema de interpretación automática que convierte datos del sensor en información comprensible para la comunidad.</p>
+    </div>
+
+    <div id="alert-banner" class="alert-banner info">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      <span id="alert-text">Sistema listo. Presiona "Iniciar análisis" para obtener una lectura.</span>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 1.25rem;">
+
+      <!-- Medidor principal -->
+      <div class="card">
+        <div class="card-title">Lectura del sensor</div>
+        <div class="card-subtitle">Concentración de metano (CH₄)</div>
+
+        <div class="meter-display">
+          <div class="meter-value-wrap">
+            <div class="meter-ring" id="meter-ring"></div>
+            <div>
+              <div class="meter-number" id="meter-number" style="color: var(--verde-oscuro);">—</div>
+              <div class="meter-unit">ppm</div>
+            </div>
+          </div>
+          <div id="nivel-badge" class="nivel-badge badge-bajo" style="opacity: 0; transition: opacity 0.4s;">
+            <span class="dot"></span>
+            <span id="nivel-texto">Sin datos</span>
+          </div>
+        </div>
+
+        <div class="nivel-bar-wrap">
+          <div class="nivel-bar-label">
+            <span>0 ppm</span>
+            <span>Seguro ← → Peligroso</span>
+            <span>5000 ppm</span>
+          </div>
+          <div class="nivel-bar">
+            <div class="nivel-fill" id="nivel-fill" style="width: 0%"></div>
+          </div>
+          <div class="nivel-ticks">
+            <span>0</span><span>500</span><span>1000</span><span>2000</span><span>5000+</span>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-primary" onclick="iniciarAnalisis()">
+            <span id="btn-texto">Iniciar análisis</span>
+          </button>
+          <div class="input-manual">
+            <label for="input-ppm">o ingresa manualmente:</label>
+            <input type="number" id="input-ppm" placeholder="ppm" min="0" max="9999" step="1">
+            <button class="btn-secondary" onclick="analizarManual()">Analizar</button>
+          </div>
+        </div>
+
+        <div class="historial">
+          <div class="historial-title">Lecturas recientes</div>
+          <div class="hist-list" id="hist-list">
+            <div class="hist-item"><span style="color: var(--gris-texto); font-size:12px;">Sin lecturas todavía.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interpretación IA -->
+      <div class="card">
+        <div class="card-title">Interpretación del sistema</div>
+        <div class="card-subtitle">Análisis basado en reglas inteligentes</div>
+
+        <div id="loading-wrap" style="display: none;">
+          <div class="loading-bar-wrap">
+            <div class="loading-label"><span id="loading-step">Calibrando sensor...</span><span id="loading-pct">0%</span></div>
+            <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+          </div>
+        </div>
+
+        <div id="resultado-wrap">
+          <div style="text-align:center; padding: 2rem 1rem; color: var(--gris-texto);">
+            <svg width="48" height="48" fill="currentColor" style="opacity:0.25; margin-bottom:0.75rem;" viewBox="0 0 24 24"><path d="M9.5 12A2.5 2.5 0 0 1 7 9.5 2.5 2.5 0 0 1 9.5 7 2.5 2.5 0 0 1 12 9.5 2.5 2.5 0 0 1 9.5 12m0-7A7.5 7.5 0 0 0 2 12.5a7.5 7.5 0 0 0 7.5 7.5 7.5 7.5 0 0 0 7.5-7.5A7.5 7.5 0 0 0 9.5 5m9.5 8.09L21.09 15 22 14.09l-2.5-2.5-2.5 2.5.91.91 1.59-1.59V22h1.5v-7.5l1.5 1.59z"/></svg>
+            <p style="font-size: 0.875rem;">Inicia un análisis para ver la interpretación del sistema.</p>
+          </div>
+        </div>
+
+        <div id="stats-grid" class="status-grid" style="display:none;">
+          <div class="status-item">
+            <div class="status-item-label">Nivel</div>
+            <div class="status-item-val" id="stat-nivel" style="color: var(--verde-oscuro);">—</div>
+          </div>
+          <div class="status-item">
+            <div class="status-item-label">Riesgo</div>
+            <div class="status-item-val" id="stat-riesgo">—</div>
+          </div>
+          <div class="status-item">
+            <div class="status-item-label">Acción</div>
+            <div class="status-item-val" id="stat-accion">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats resumen -->
+    <div class="grid-3">
+      <div class="stat-mini">
+        <div class="stat-mini-num" id="stat-lecturas">0</div>
+        <div class="stat-mini-label">Lecturas totales</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-num" id="stat-promedio">—</div>
+        <div class="stat-mini-label">Promedio (ppm)</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-num" id="stat-estado-gral" style="color: var(--verde-oscuro);">—</div>
+        <div class="stat-mini-label">Estado general</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════ SECCIÓN ASISTENTE IA ══════════════ -->
+  <section class="section" id="sec-asistente">
+
+    <div class="hero" style="margin-bottom: 1.5rem;">
+      <div class="hero-eyebrow">Asistente inteligente Baymet</div>
+      <h1>Pregúntame sobre el<br>proyecto y el metano</h1>
+      <p>Soy un asistente con conocimiento especializado en el embalse del Bayano, metano y cambio climático. Respondo preguntas de la comunidad de forma clara.</p>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-avatar" style="width:52px;height:52px;background:white;border:3px solid rgba(76,175,80,0.6);overflow:hidden;padding:2px;">
+          <img src="/mnt/user-data/uploads/1777276568416_image.png" alt="Bayanito"
+            style="width:100%;height:100%;object-fit:cover;object-position:center top;"
+            onerror="this.style.display='none';this.parentElement.innerHTML='🦦';">
+        </div>
+        <div class="chat-header-info">
+          <h3>Bayanito 🦦</h3>
+          <p>Tu guía del Bayano · Asistente Baymet AI</p>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;color:#86efac;font-weight:600;">EN LÍNEA</span>
+          <div class="chat-online"></div>
+        </div>
+      </div>
+      <div class="chat-suggestions">
+        <span class="chip" onclick="enviarChip(this)">¿Qué es Baymet?</span>
+        <span class="chip" onclick="enviarChip(this)">¿Qué es el metano?</span>
+        <span class="chip" onclick="enviarChip(this)">¿Es peligroso?</span>
+        <span class="chip" onclick="enviarChip(this)">¿Cómo funciona el sistema?</span>
+        <span class="chip" onclick="enviarChip(this)">¿Qué puede hacer la comunidad?</span>
+        <span class="chip" onclick="enviarChip(this)">Metano y cambio climático</span>
+        <span class="chip" onclick="enviarChip(this)">¿Qué es biogás?</span>
+        <span class="chip" onclick="enviarChip(this)">¿Qué son las ppm?</span>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <!-- Mensaje inicial del bot -->
+      </div>
+      <div class="typing-indicator" id="typing-indicator">
+        <div class="typing-bubble">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Escribe tu pregunta aquí..." onkeydown="if(event.key==='Enter') enviarMensaje()">
+        <button class="chat-send" onclick="enviarMensaje()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════ SECCIÓN EDUCACIÓN ══════════════ -->
+  <section class="section" id="sec-educacion">
+
+    <div class="edu-section-title">Aprende sobre Baymet y el metano</div>
+    <div class="edu-section-sub">Información clara para la comunidad del embalse del Bayano, Panamá.</div>
+
+    <div class="grid-3" style="margin-bottom: 1.5rem;">
+      <div class="info-card">
+        <div class="info-icon verde">
+          <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2H3c-1 0-2 1-2 1l3.83 7.67A4.92 4.92 0 0 0 8 13c2 0 2 2 6 2 1.3-.17 2.51-.8 3-2z"/></svg>
+        </div>
+        <h3>¿Qué es el metano (CH₄)?</h3>
+        <p>El metano es un gas natural producido cuando materia orgánica se descompone sin oxígeno. En los embalses, los sedimentos del fondo liberan este gas de forma continua hacia la atmósfera.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon azul">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <h3>¿Qué es Baymet?</h3>
+        <p>Baymet es una iniciativa socioambiental panameña que monitorea las emisiones de metano en el embalse del Bayano, educa a jóvenes sobre cambio climático y explora el potencial energético de este gas.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon amarillo">
+          <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+        </div>
+        <h3>¿Por qué es importante?</h3>
+        <p>El metano es 80 veces más potente que el CO₂ como gas de efecto invernadero a corto plazo. Monitorear sus emisiones en embalses tropicales es clave para entender el cambio climático en Panamá.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 1.5rem;">
+      <div class="card">
+        <div class="card-title">Tabla de niveles de riesgo</div>
+        <div class="card-subtitle">Referencia técnica</div>
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th>Nivel</th>
+              <th>Rango (ppm)</th>
+              <th>Riesgo</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="risk-dot" style="background: #22c55e;"></span>Bajo</td>
+              <td>0 – 499</td>
+              <td>Mínimo</td>
+              <td>Monitoreo normal</td>
+            </tr>
+            <tr>
+              <td><span class="risk-dot" style="background: #f59e0b;"></span>Medio</td>
+              <td>500 – 999</td>
+              <td>Moderado</td>
+              <td>Vigilancia aumentada</td>
+            </tr>
+            <tr>
+              <td><span class="risk-dot" style="background: #ef4444;"></span>Alto</td>
+              <td>1000 – 2499</td>
+              <td>Elevado</td>
+              <td>Notificar autoridades</td>
+            </tr>
+            <tr>
+              <td><span class="risk-dot" style="background: #7f1d1d;"></span>Crítico</td>
+              <td>2500+</td>
+              <td>Peligroso</td>
+              <td>Evacuación preventiva</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size: 11px; color: var(--gris-texto); margin-top: 0.75rem;">* Valores de referencia adaptados para comunidades ribereñas. El LIE (Límite Inferior de Explosividad) del metano es ~50,000 ppm.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">El metano como recurso</div>
+        <div class="card-subtitle">Potencial energético</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h4>Captura del biogás</h4>
+            <p>El metano emitido por el embalse puede capturarse mediante tecnologías de flotación y cúpulas colectoras.</p>
+          </div>
+          <div class="timeline-item">
+            <h4>Purificación</h4>
+            <p>El gas capturado se filtra para separar el metano (CH₄) de otros gases como CO₂ y sulfuro de hidrógeno.</p>
+          </div>
+          <div class="timeline-item">
+            <h4>Generación eléctrica</h4>
+            <p>El biometano puede usarse en turbinas o generadores para producir electricidad limpia para las comunidades.</p>
+          </div>
+          <div class="timeline-item">
+            <h4>Beneficio comunitario</h4>
+            <p>Las comunidades del Bayano podrían acceder a energía renovable generada localmente, reduciendo costos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-title">El embalse del Bayano</div>
+      <div class="card-subtitle">Contexto ambiental</div>
+      <div class="grid-3">
+        <div class="stat-mini">
+          <div class="stat-mini-num">350 km²</div>
+          <div class="stat-mini-label">Área del embalse</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-num">1976</div>
+          <div class="stat-mini-label">Año de creación</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-num">300 MW</div>
+          <div class="stat-mini-label">Capacidad hidroeléctrica</div>
+        </div>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.875rem; color: #4b5563; line-height: 1.65;">
+        El embalse del Bayano fue construido en 1976 para generar electricidad mediante la represa sobre el río Bayano. Sin embargo, la inundación de vastas áreas de bosque tropical creó condiciones ideales para la producción de metano. La materia orgánica sumergida se descompone anaeróbicamente, liberando CH₄ que asciende a la superficie. Las comunidades indígenas Kuna y Emberá que habitan las márgenes del embalse están expuestas a estas emisiones diariamente, sin contar con información precisa sobre los niveles de concentración.
+      </p>
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-logo">Baymet AI</div>
+  <p>Sistema de monitoreo inteligente de metano — Embalse del Bayano, Panamá</p>
+  <p style="margin-top: 4px;">Desarrollado como iniciativa socioambiental educativa · 2025</p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+// BAYMET AI — Sistema de interpretación de metano
+// ═══════════════════════════════════════════════════
+
+// ── Navegación ──
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  const navLinks = document.querySelectorAll('nav a');
+  const map = { monitor: 0, asistente: 1, educacion: 2 };
+  if (map[id] !== undefined) navLinks[map[id]].classList.add('active');
+}
+
+// ── Historial de lecturas ──
+const historial = [];
+let totalLecturas = 0;
+let sumaTotal = 0;
+
+// ── Sistema de interpretación inteligente basado en reglas ──
+function interpretarPPM(ppm) {
+  if (ppm < 0 || isNaN(ppm)) return null;
+
+  if (ppm < 500) {
+    return {
+      nivel: 'Bajo',
+      clase: 'bajo',
+      badgeClase: 'badge-bajo',
+      ringClase: 'nivel-bajo',
+      fillClase: '',
+      color: '#15803d',
+      riesgo: 'Mínimo',
+      accion: 'Normal',
+      titulo: 'Condiciones seguras',
+      icono: '✓',
+      explicacion: `La concentración de metano registrada es de ${ppm} ppm, lo que está dentro del rango seguro. Los niveles naturales del ambiente oscilan entre 1.7 y 2 ppm; una lectura de ${ppm} ppm indica una ligera acumulación típica de zonas cercanas a cuerpos de agua con materia orgánica en descomposición, pero sin representar riesgo inmediato para las personas.`,
+      recomendaciones: [
+        'Continuar el monitoreo regular cada 4–6 horas.',
+        'Mantener ventilación adecuada en espacios cerrados cerca del agua.',
+        'Registrar la lectura en el sistema de seguimiento comunitario.',
+        'No encender fuego directamente sobre la superficie del agua.',
+      ]
+    };
+  } else if (ppm < 1000) {
+    return {
+      nivel: 'Medio',
+      clase: 'medio',
+      badgeClase: 'badge-medio',
+      ringClase: 'nivel-medio',
+      fillClase: 'medio',
+      color: '#92400e',
+      riesgo: 'Moderado',
+      accion: 'Vigilancia',
+      titulo: 'Nivel de atención elevado',
+      icono: '⚠',
+      explicacion: `Se detectaron ${ppm} ppm de metano. Este nivel supera el umbral de atención. Aunque no es peligroso de forma inmediata, indica que la actividad de descomposición orgánica en el fondo del embalse es más intensa de lo normal. Las personas sensibles (niños, adultos mayores) deben evitar permanecer prolongadamente sobre el agua en esta zona.`,
+      recomendaciones: [
+        'Aumentar la frecuencia de monitoreo a cada 1–2 horas.',
+        'Alertar a los pescadores de la zona sobre las condiciones actuales.',
+        'Evitar actividades de buceo o natación cerca del punto de medición.',
+        'Documentar condiciones climáticas (temperatura, viento, hora).',
+        'Notificar al equipo técnico de Baymet para seguimiento.',
+      ]
+    };
+  } else if (ppm < 2500) {
+    return {
+      nivel: 'Alto',
+      clase: 'alto',
+      badgeClase: 'badge-alto',
+      ringClase: 'nivel-alto',
+      fillClase: 'alto',
+      color: '#991b1b',
+      riesgo: 'Elevado',
+      accion: 'Notificar',
+      titulo: 'Concentración peligrosa detectada',
+      icono: '!',
+      explicacion: `ALERTA: Se registraron ${ppm} ppm de metano, un nivel significativamente elevado. A estas concentraciones, el gas puede desplazar oxígeno en espacios poco ventilados y provocar mareos o dificultad para respirar. Existe riesgo real de ignición si hay fuentes de calor o chispas. Se requiere acción inmediata.`,
+      recomendaciones: [
+        'Abandonar inmediatamente cualquier embarcación en la zona.',
+        'No encender ninguna llama, motor o dispositivo eléctrico cerca.',
+        'Notificar a las autoridades locales y al equipo Baymet de inmediato.',
+        'Evacuar a personas vulnerables (niños, embarazadas) del área.',
+        'Ventilar bien cualquier estructura cercana al punto de medición.',
+        'Monitorear continuamente hasta que el nivel baje a rango seguro.',
+      ]
+    };
+  } else {
+    return {
+      nivel: 'Crítico',
+      clase: 'critico',
+      badgeClase: 'badge-critico',
+      ringClase: 'nivel-critico',
+      fillClase: 'critico',
+      color: '#fecaca',
+      riesgo: 'Peligroso',
+      accion: 'Evacuar',
+      titulo: 'NIVEL CRÍTICO — Acción urgente requerida',
+      icono: '⛔',
+      explicacion: `NIVEL CRÍTICO: ${ppm} ppm es una concentración extremadamente peligrosa. Aunque el Límite Inferior de Explosividad (LIE) del metano es ~50,000 ppm, niveles tan altos en zonas confinadas pueden ser inmediatamente peligrosos para la salud. Este valor sugiere una liberación masiva de gas desde el fondo del embalse.`,
+      recomendaciones: [
+        '🚨 EVACUAR el área inmediatamente. No permanezca en la zona.',
+        'Llamar a servicios de emergencia: Sinaproc 315-7978.',
+        'No encender NADA — vehículos, linternas, teléfonos cerca del gas.',
+        'Alertar a todas las personas en un radio de 500 metros.',
+        'Reportar al Ministerio de Ambiente: 500-0855.',
+        'Esperar instrucciones de las autoridades antes de regresar.',
+      ]
+    };
+  }
+}
+
+// ── Funciones de UI ──
+let lecturaActual = null;
+let analizando = false;
+
+function actualizarUI(ppm, data) {
+  // Medidor número
+  document.getElementById('meter-number').textContent = ppm;
+  document.getElementById('meter-number').style.color = data.color;
+
+  // Ring color
+  const ring = document.getElementById('meter-ring');
+  ring.className = 'meter-ring nivel-' + data.clase;
+
+  // Badge nivel
+  const badge = document.getElementById('nivel-badge');
+  badge.className = 'nivel-badge ' + data.badgeClase;
+  badge.style.opacity = '1';
+  document.getElementById('nivel-texto').textContent = data.nivel;
+
+  // Barra: ticks en 0%(0ppm), 25%(500), 50%(1000), 75%(2000), 100%(5000+)
+  // Interpolamos dentro de cada segmento para posición exacta
+  let pct;
+  if (ppm <= 500)       pct = (ppm / 500) * 25;
+  else if (ppm <= 1000) pct = 25 + ((ppm - 500) / 500) * 25;
+  else if (ppm <= 2000) pct = 50 + ((ppm - 1000) / 1000) * 25;
+  else                  pct = 75 + Math.min(((ppm - 2000) / 3000) * 25, 25);
+  const fill = document.getElementById('nivel-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'nivel-fill ' + (data.fillClase || '');
+
+  // Stats grid
+  document.getElementById('stats-grid').style.display = 'grid';
+  document.getElementById('stat-nivel').textContent = data.nivel;
+  document.getElementById('stat-nivel').style.color = data.clase === 'bajo' ? '#15803d' : data.clase === 'medio' ? '#92400e' : '#991b1b';
+  document.getElementById('stat-riesgo').textContent = data.riesgo;
+  document.getElementById('stat-accion').textContent = data.accion;
+
+  // Alert banner
+  const banner = document.getElementById('alert-banner');
+  const alertText = document.getElementById('alert-text');
+  banner.className = 'alert-banner visible';
+  if (data.clase === 'bajo') {
+    banner.className += ' info';
+    alertText.textContent = `Lectura de ${ppm} ppm registrada. Condiciones dentro del rango seguro.`;
+  } else if (data.clase === 'medio') {
+    banner.className += ' warning';
+    alertText.textContent = `Lectura de ${ppm} ppm. Se recomienda mayor vigilancia en el área.`;
+  } else {
+    banner.className += ' danger';
+    alertText.textContent = `⚠ ALERTA: ${ppm} ppm detectados. Revisa las recomendaciones de inmediato.`;
+  }
+
+  // Resultado interpretación
+  const wrap = document.getElementById('resultado-wrap');
+  const alertaClass = data.clase === 'medio' ? 'alerta-media' : data.clase === 'alto' ? 'alerta-alta' : data.clase === 'critico' ? 'alerta-critica' : '';
+  const recsHTML = data.recomendaciones.map(r => `<li>${r}</li>`).join('');
+  wrap.innerHTML = `
+    <div class="resultado-card ${alertaClass}">
+      <div class="resultado-titulo">
+        <span>${data.icono}</span>
+        ${data.titulo}
+      </div>
+      <p class="resultado-texto">${data.explicacion}</p>
+      <ul class="recs-list" style="margin-top: 0.75rem;">
+        ${recsHTML}
+      </ul>
+    </div>
+  `;
+
+  // Historial
+  historial.unshift({ ppm, nivel: data.nivel, hora: new Date().toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' }) });
+  if (historial.length > 5) historial.pop();
+  totalLecturas++;
+  sumaTotal += ppm;
+  actualizarHistorial();
+  actualizarStats();
+}
+
+function actualizarHistorial() {
+  const list = document.getElementById('hist-list');
+  list.innerHTML = historial.map(h => {
+    const colores = { Bajo: '#22c55e', Medio: '#f59e0b', Alto: '#ef4444', Crítico: '#7f1d1d' };
+    return `<div class="hist-item">
+      <span class="risk-dot" style="background:${colores[h.nivel] || '#aaa'}; display:inline-block; width:8px; height:8px; border-radius:50%;"></span>
+      <span class="hist-val">${h.ppm} ppm</span>
+      <span style="color: var(--gris-texto); font-size:12px;">${h.nivel}</span>
+      <span class="hist-time">${h.hora}</span>
+    </div>`;
+  }).join('');
+}
+
+function actualizarStats() {
+  document.getElementById('stat-lecturas').textContent = totalLecturas;
+  document.getElementById('stat-promedio').textContent = Math.round(sumaTotal / totalLecturas);
+  const ult = historial[0];
+  document.getElementById('stat-estado-gral').textContent = ult ? ult.nivel : '—';
+  const colores = { Bajo: '#15803d', Medio: '#92400e', Alto: '#991b1b', Crítico: '#7f1d1d' };
+  document.getElementById('stat-estado-gral').style.color = ult ? (colores[ult.nivel] || 'inherit') : 'inherit';
+}
+
+// ── Simulación con animación ──
+async function iniciarAnalisis() {
+  if (analizando) return;
+  analizando = true;
+  const btn = document.getElementById('btn-texto');
+  btn.textContent = 'Analizando...';
+
+  // Mostrar loading
+  document.getElementById('loading-wrap').style.display = 'block';
+  document.getElementById('resultado-wrap').innerHTML = '';
+  document.getElementById('stats-grid').style.display = 'none';
+
+  const steps = [
+    'Conectando con el sensor...', 'Calibrando parámetros...', 'Leyendo concentración de CH₄...',
+    'Procesando datos...', 'Aplicando modelo de interpretación...', 'Generando reporte...'
+  ];
+  const fill = document.getElementById('loading-fill');
+  const stepEl = document.getElementById('loading-step');
+  const pctEl = document.getElementById('loading-pct');
+
+  for (let i = 0; i <= 100; i += 2) {
+    await new Promise(r => setTimeout(r, 40));
+    fill.style.width = i + '%';
+    pctEl.textContent = i + '%';
+    if (i % 17 === 0) stepEl.textContent = steps[Math.floor(i / 17)] || steps[steps.length - 1];
+  }
+
+  // Generar valor aleatorio ponderado (más frecuente nivel bajo/medio para demo creíble)
+  const rand = Math.random();
+  let ppm;
+  if (rand < 0.45) ppm = Math.round(Math.random() * 400 + 50);       // Bajo: 50–450
+  else if (rand < 0.75) ppm = Math.round(Math.random() * 450 + 500); // Medio: 500–950
+  else if (rand < 0.92) ppm = Math.round(Math.random() * 1400 + 1000); // Alto: 1000–2400
+  else ppm = Math.round(Math.random() * 2000 + 2500);                  // Crítico: 2500+
+
+  document.getElementById('loading-wrap').style.display = 'none';
+  actualizarUI(ppm, interpretarPPM(ppm));
+
+  btn.textContent = 'Nueva lectura';
+  analizando = false;
+}
+
+function analizarManual() {
+  const val = parseInt(document.getElementById('input-ppm').value);
+  if (isNaN(val) || val < 0) {
+    alert('Por favor ingresa un valor numérico válido (≥ 0).');
+    return;
+  }
+  const data = interpretarPPM(val);
+  if (!data) { alert('Valor inválido.'); return; }
+  document.getElementById('loading-wrap').style.display = 'none';
+  document.getElementById('stats-grid').style.display = 'none';
+  actualizarUI(val, data);
+  document.getElementById('input-ppm').value = '';
+}
+
+// ══════════════════════════════════════════════
+// ASISTENTE INTELIGENTE — Base de conocimiento
+// ══════════════════════════════════════════════
+
+const KB = [
+
+  // ── SALUDO ──
+  {
+    tags: ['hola', 'buenas', 'saludos', 'buenos dias', 'buenas tardes', 'buenas noches', 'hola baymet', 'hey'],
+    corta: true,
+    respuesta: `¡Hola! Soy el asistente de Baymet. 👋\n\nPuedo explicarte sobre:\n• ¿Qué es Baymet y para qué sirve?\n• ¿Qué es el metano y sus riesgos?\n• ¿Cómo funciona el sistema de monitoreo?\n• Cambio climático y energía sostenible\n• ¿Qué puede hacer la comunidad?\n\nEscribe tu pregunta o elige una de las opciones de arriba.`
+  },
+  {
+    tags: ['gracias', 'muchas gracias', 'thank you', 'ok gracias', 'perfecto gracias'],
+    corta: true,
+    respuesta: `¡Con gusto! Para eso estoy. Si tienes más preguntas sobre Baymet, el metano o el cambio climático, no dudes en preguntar. 🌿`
+  },
+
+  // ══════════════════════════════════════════
+  // 1. QUÉ ES BAYMET
+  // ══════════════════════════════════════════
+  {
+    tags: ['baymet', 'qué es baymet', 'proyecto baymet', 'iniciativa', 'quienes son', 'de qué trata', 'cuéntame sobre baymet', 'explica baymet', 'nombre baymet'],
+    respuesta: `📌 VERSIÓN CORTA\nBaymet es un proyecto socioambiental panameño que monitorea el metano en el embalse del Bayano, educa a jóvenes sobre cambio climático y estudia cómo ese gas podría convertirse en energía para la comunidad.\n\nSu nombre une "Bayano" y "metano".\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\n¿Por qué nació Baymet?\nEl embalse del Bayano, construido en 1976, inundó miles de hectáreas de bosque tropical. Toda esa vegetación y materia orgánica quedó bajo el agua y, al descomponerse sin oxígeno, produce metano de forma continua. Este gas sube a la superficie sin que nadie lo mida ni lo vea.\n\nLas comunidades que viven cerca —pescadores, familias indígenas Kuna y Emberá— han convivido con estas emisiones durante décadas sin información clara sobre si representan un riesgo o no.\n\nBaymet nació para cambiar eso.\n\n¿Qué busca el proyecto?\n• 🔬 Monitorear: Medir los niveles de metano con sensores y registrar los datos.\n• 📚 Educar: Que jóvenes y comunidades entiendan qué es el metano, por qué importa y cómo está relacionado con el cambio climático.\n• ⚡ Explorar: Investigar si ese metano podría aprovecharse como fuente de energía local.\n\n¿Por qué es importante?\nPanamá tiene varios embalses. Estudiar el metano del Bayano puede generar información valiosa para todo el país y demostrar que desde comunidades locales también se puede hacer ciencia ambiental real.`
+  },
+  {
+    tags: ['origen', 'historia', 'por qué nació', 'nació baymet', 'cómo empezó', 'inicio del proyecto'],
+    respuesta: `📌 ORIGEN DE BAYMET\n\nEl proyecto nació al observar un problema que pasaba desapercibido: el embalse del Bayano lleva décadas produciendo metano de forma silenciosa, sin que nadie lo midiera ni informara a las comunidades cercanas.\n\nEn 1976, la construcción de la represa inundó enormes extensiones de bosque tropical panameño. Toda esa materia orgánica —árboles, plantas, suelo— quedó sumergida y comenzó a descomponerse, liberando metano continuamente.\n\nBaymet surge de una pregunta simple: ¿qué tan alto es ese gas y qué significa para las personas que viven ahí?\n\nA partir de esa pregunta, el proyecto construyó un sistema de monitoreo accesible, una plataforma educativa y un asistente de inteligencia artificial para que cualquier persona, sin importar su nivel técnico, pueda entender los datos.`
+  },
+
+  // ══════════════════════════════════════════
+  // 2. EL METANO — QUÉ ES
+  // ══════════════════════════════════════════
+  {
+    tags: ['metano', 'qué es metano', 'ch4', 'gas metano', 'qué es el gas', 'compuesto', 'molécula', 'gas invisible'],
+    respuesta: `📌 VERSIÓN CORTA\nEl metano (CH₄) es un gas incoloro e inodoro producido cuando materia orgánica se descompone sin oxígeno. Es el mismo gas que se usa para cocinar, pero en la naturaleza lo producen pantanos, embalses y animales.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\n¿Qué es exactamente?\nEl metano es una molécula formada por un átomo de carbono y cuatro de hidrógeno (CH₄). Es completamente invisible e inodoro —no se ve, no se huele— lo que lo hace difícil de detectar sin instrumentos.\n\n¿Cómo se produce en la naturaleza?\nCuando plantas, hojas o cualquier materia orgánica se descomponen en un lugar sin oxígeno (como el fondo de un lago o pantano), las bacterias que realizan esa descomposición liberan metano como subproducto. A esto se le llama metanogénesis.\n\nEjemplos cotidianos:\n• El fondo de un pantano burbujea metano cuando pones el pie.\n• Los rellenos sanitarios lo producen con la basura enterrada.\n• Las vacas lo liberan al digerir su alimento.\n• El embalse del Bayano lo genera en su fondo continuamente.\n\n¿Por qué es importante ambientalmente?\nEl metano es un gas de efecto invernadero. Cuando llega a la atmósfera, atrapa el calor del sol y contribuye al calentamiento global. A corto plazo (20 años), es aproximadamente 80 veces más potente que el CO₂.\n\nSu concentración en la atmósfera ha aumentado más del 150% desde la época preindustrial, siendo los embalses tropicales una fuente relevante aunque poco estudiada.`
+  },
+  {
+    tags: ['cómo se produce', 'producción metano', 'descomposición', 'bacterias', 'orgánica', 'cómo se genera', 'por qué sale metano'],
+    respuesta: `📌 CÓMO SE PRODUCE EL METANO\n\nVersioncita rápida: La materia orgánica (hojas, madera, animales) que se descompone sin oxígeno produce metano. Es un proceso natural realizado por bacterias microscópicas.\n\n─────────────────────────\nEl proceso paso a paso:\n\n1. Materia orgánica cae al fondo del agua (hojas, árboles, sedimentos).\n2. Queda enterrada sin acceso al oxígeno del aire.\n3. Bacterias especiales llamadas metanógenas la descomponen.\n4. Como resultado, liberan metano (CH₄) y dióxido de carbono (CO₂).\n5. El metano sube en burbujas hacia la superficie del agua.\n6. Desde ahí, pasa a la atmósfera.\n\nEn el embalse del Bayano:\nCuando se construyó la represa en 1976, el agua inundó miles de hectáreas de bosque tropical panameño. Todo ese material vegetal quedó bajo el agua y lleva décadas descomponiéndose. El resultado es una producción continua de metano que escapa a la atmósfera todos los días.\n\nAnálogo simple: imagina que dejas frutas y hojas en una cubeta tapada sin aire. Con el tiempo, el fondo burbujea. Eso, a escala de cientos de kilómetros cuadrados, es lo que ocurre en el Bayano.`
+  },
+
+  // ══════════════════════════════════════════
+  // 3. ¿ES PELIGROSO EL METANO?
+  // ══════════════════════════════════════════
+  {
+    tags: ['peligroso', 'es peligroso', 'riesgo', 'daño', 'hace daño', 'mata', 'tóxico', 'explosivo', 'qué tan peligroso', 'veneno', 'enferma', 'cuándo es peligroso'],
+    respuesta: `📌 VERSIÓN CORTA\nEl metano no es tóxico directamente, pero sí puede ser peligroso dependiendo de su concentración. A niveles muy altos en espacios cerrados, puede desplazar el oxígeno y causar asfixia. Y a concentraciones extremas, es inflamable.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA — Riesgos por nivel\n\n🟢 NIVEL BAJO (0 – 499 ppm)\nNo representa riesgo para la salud. El aire que respiramos ya contiene cerca de 1.9 ppm de metano de forma natural. A menos de 500 ppm, no hay efectos detectables sobre las personas.\n\n🟡 NIVEL MEDIO (500 – 999 ppm)\nNo es peligroso de forma inmediata, pero indica que la actividad de descomposición en el embalse es alta. Se recomienda mayor vigilancia, especialmente en espacios poco ventilados como botes con cabina cerrada.\n\n🔴 NIVEL ALTO (1000 – 2499 ppm)\nA estos niveles, en espacios confinados, el metano puede reducir la concentración de oxígeno disponible. Las personas pueden sentir mareos, dolor de cabeza o dificultad para respirar. Se debe ventilar el área y notificar a las autoridades.\n\n⛔ NIVEL CRÍTICO (2500+ ppm)\nConcentraciones muy elevadas en espacios cerrados son peligrosas. A partir de ~50,000 ppm (en condiciones muy específicas) el metano se vuelve inflamable. El riesgo principal a estos niveles es la asfixia por desplazamiento del oxígeno.\n\nImportante aclarar:\nEl metano en sí mismo no es un veneno. No enferma directamente al respirarlo en bajas concentraciones. El peligro real depende del contexto: espacio cerrado vs. al aire libre, concentración, y presencia de fuentes de ignición.\n\nEl riesgo ambiental (cambio climático) es a largo plazo y global, no inmediato para la persona.`
+  },
+  {
+    tags: ['inflamable', 'explota', 'explosión', 'fuego', 'llama', 'combustión', 'límite explosividad', 'lie'],
+    respuesta: `📌 ¿El metano explota?\n\nSí, pero solo bajo condiciones muy específicas que raramente se dan en el entorno del embalse.\n\nPara que el metano sea inflamable necesita:\n• Estar entre el 5% y el 15% del volumen total del aire (50,000 – 150,000 ppm).\n• Estar en un espacio cerrado sin ventilación.\n• Haber una fuente de ignición: chispa, llama o calor.\n\nA las concentraciones que detecta el sistema Baymet (0 – 5000 ppm), el metano no es inflamable. El riesgo de explosión requeriría niveles 10 veces mayores a lo que normalmente se registra en el embalse.\n\nEl mayor riesgo práctico a concentraciones medias-altas es la reducción de oxígeno disponible en espacios cerrados, no la explosión.`
+  },
+
+  // ══════════════════════════════════════════
+  // 4. CAMBIO CLIMÁTICO Y GASES DE EFECTO INVERNADERO
+  // ══════════════════════════════════════════
+  {
+    tags: ['cambio climático', 'calentamiento', 'global', 'temperatura', 'efecto invernadero', 'gases invernadero', 'gei', 'atmósfera', 'co2', 'planeta'],
+    respuesta: `📌 VERSIÓN CORTA\nEl cambio climático es el aumento gradual de la temperatura del planeta causado por gases que atrapan el calor del sol en la atmósfera. El metano es uno de esos gases, y los embalses como el Bayano lo producen en cantidades significativas.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\n¿Qué es el efecto invernadero?\nImagina que la Tierra tiene una manta invisible alrededor. Esa manta está formada por gases como el CO₂, el metano y el vapor de agua. Sin esos gases, la Tierra sería demasiado fría para vivir. El problema es que estamos añadiendo demasiados gases, haciendo la manta más gruesa y calentando el planeta más de lo normal.\n\n¿Qué gases son los principales?\n• CO₂ (dióxido de carbono): El más conocido. Lo producen los autos, fábricas y deforestación.\n• CH₄ (metano): Menos abundante, pero 80 veces más potente que el CO₂ en 20 años.\n• N₂O (óxido nitroso): Proviene de fertilizantes y ganadería.\n\n¿Qué tiene que ver el Bayano?\nLos embalses tropicales son fuentes importantes de metano que durante años no estuvieron incluidas en los cálculos de emisiones. Países con muchos embalses, como Panamá y Brasil, pueden estar emitiendo más de lo que se pensaba. Medir estas emisiones es el primer paso para entender el verdadero impacto.\n\nConexión local-global:\nCada burbuja de metano que sube desde el fondo del Bayano viaja a la atmósfera y contribuye al mismo problema climático que afecta a todo el planeta. Lo local y lo global están conectados.`
+  },
+  {
+    tags: ['metano y clima', 'metano calentamiento', 'potencia metano', 'co2 vs metano', 'cuánto contamina', 'más potente'],
+    respuesta: `📌 METANO VS CO₂ — ¿Cuál es más peligroso para el clima?\n\nDepende del tiempo que analices:\n\n• En 20 años: El metano es ~80 veces más potente que el CO₂ como gas de efecto invernadero.\n• En 100 años: Es ~27 veces más potente (se degrada más rápido en la atmósfera).\n\nEsto significa que reducir emisiones de metano hoy tiene un impacto climático rápido y visible. Si logramos disminuir el metano que emite el Bayano, el beneficio para el clima sería significativo a corto plazo.\n\nEl metano permanece en la atmósfera unos 12 años, mientras el CO₂ puede durar siglos. Por eso actuar sobre el metano es especialmente valioso ahora.`
+  },
+
+  // ══════════════════════════════════════════
+  // 5. CÓMO FUNCIONA EL SISTEMA BAYMET
+  // ══════════════════════════════════════════
+  {
+    tags: ['cómo funciona', 'sistema', 'prototipo', 'sensor', 'qué hace', 'dispositivo', 'aparato', 'mide', 'cómo mide', 'cómo detecta', 'medición', 'funcionamiento'],
+    respuesta: `📌 VERSIÓN CORTA\nEl sistema Baymet tiene un sensor que detecta cuánto metano hay en el aire, expresa ese valor en números (ppm) y una aplicación de inteligencia artificial lo interpreta en lenguaje claro para la comunidad.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\nEl sistema tiene tres partes:\n\n🔬 1. DETECCIÓN — El sensor físico\nEs un sensor electroquímico que reacciona al contacto con el metano. Cuando las moléculas de CH₄ entran en contacto con el sensor, produce una señal eléctrica proporcional a la concentración presente. Esa señal se convierte en un número: partes por millón (ppm).\n\nEs como un termómetro, pero en lugar de medir temperatura, mide concentración de gas.\n\n🧠 2. INTERPRETACIÓN — La aplicación\nEl número del sensor por sí solo no dice mucho a una persona sin formación técnica. La aplicación Baymet AI toma ese número y lo convierte en:\n• Un nivel de riesgo (Bajo, Medio, Alto, Crítico).\n• Una explicación en palabras simples.\n• Recomendaciones prácticas según el nivel.\n\n📊 3. REGISTRO E HISTORIAL\nCada lectura queda guardada con hora y fecha. Esto permite ver tendencias: ¿el metano sube en ciertos horarios? ¿En determinadas épocas del año? Con el tiempo, estos datos son valiosos para investigadores y autoridades.\n\nImportante: Es un prototipo demostrativo. Está diseñado para mostrar el potencial de este tipo de monitoreo y generar conciencia, no como sistema de alerta de emergencias oficial.`
+  },
+  {
+    tags: ['ppm', 'partes por millon', 'unidad', 'medida', 'qué significa ppm', 'qué son las ppm', 'cómo interpreto'],
+    respuesta: `📌 ¿Qué son las PPM?\n\nPPM = Partes Por Millón. Es una forma de medir qué tan concentrado está un gas en el aire.\n\nEjemplo sencillo:\nImagina un millón de pelotas de ping-pong llenando un estadio. Si 500 de esas pelotas son de color rojo (metano), tienes 500 ppm.\n\nReferencias prácticas:\n• Aire limpio: 1.9 ppm de metano (nivel natural global)\n• 500 ppm: Primer umbral de atención en zonas de monitoreo\n• 1000 ppm: Nivel que requiere precaución en espacios cerrados\n• 2500 ppm: Nivel crítico — se activan protocolos de seguridad\n• 50,000 ppm: Límite inferior de inflamabilidad (LEL)\n\nMientras más alto el número, más concentrado está el gas en el aire que te rodea.`
+  },
+  {
+    tags: ['exacta', 'precisa', 'exactitud', 'confiable', 'es preciso', 'qué tan exacto', 'margen de error', 'calibración'],
+    respuesta: `📌 ¿Qué tan exactas son las mediciones?\n\nEl sensor utilizado en Baymet es un sensor de detección de gas de uso educativo y demostrativo. Ofrece una indicación general de los niveles de metano, pero no es un instrumento de laboratorio de alta precisión.\n\nSus limitaciones honestas:\n• Puede verse afectado por temperatura, humedad y otros gases presentes.\n• Requiere calibración periódica para mantener su precisión.\n• Los valores deben interpretarse como indicativos, no como medición absoluta.\n\nPara qué sí sirve:\n• Detectar cambios significativos en los niveles de metano.\n• Identificar si estamos en zona segura o de atención.\n• Generar conciencia y datos comparativos a lo largo del tiempo.\n\nBaymet es un prototipo educativo y demostrativo, no un sistema de monitoreo certificado. Su valor principal está en la educación y en mostrar el potencial de este tipo de tecnología para comunidades locales.`
+  },
+
+  // ══════════════════════════════════════════
+  // 6. IA DEL PROYECTO — BAYMET AI
+  // ══════════════════════════════════════════
+  {
+    tags: ['inteligencia artificial', 'ia', 'baymet ai', 'qué hace la ia', 'cómo funciona la ia', 'robot', 'asistente ia', 'chatbot', 'sistema inteligente', 'cómo piensa'],
+    respuesta: `📌 VERSIÓN CORTA\nLa IA de Baymet no es magia. Es un sistema que tiene conocimiento especializado sobre metano y el proyecto, y lo usa para interpretar datos del sensor y responder preguntas de forma clara y accesible.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\nBaymet AI tiene dos funciones principales:\n\n🧠 1. INTERPRETACIÓN DE DATOS\nCuando el sensor entrega un número (por ejemplo: 780 ppm), el sistema aplica un conjunto de reglas inteligentes para determinar:\n• ¿En qué nivel está? (Bajo, Medio, Alto, Crítico)\n• ¿Qué riesgo representa?\n• ¿Qué se recomienda hacer?\n\nNo usa machine learning ni redes neuronales artificiales. Usa lógica estructurada basada en conocimiento técnico real sobre concentraciones de metano. Esto lo hace confiable y predecible.\n\n💬 2. ASISTENTE DE PREGUNTAS (lo que hago yo)\nEstoy entrenado con una base de conocimiento sobre Baymet, el metano, el embalse del Bayano, el cambio climático y temas relacionados. Cuando me haces una pregunta, busco la respuesta más relevante según las palabras que usas.\n\nEnfoque en accesibilidad:\nTodo está diseñado para que una persona sin formación técnica pueda entender los resultados. Sin tecnicismos innecesarios, con ejemplos cotidianos y recomendaciones prácticas.\n\nLo que la IA NO hace:\n• No inventa información.\n• No exagera capacidades del proyecto.\n• Si no sabe algo, lo dice.`
+  },
+  {
+    tags: ['machine learning', 'aprende', 'aprendizaje', 'red neuronal', 'modelo', 'entrenamiento ia', 'cómo aprende'],
+    respuesta: `📌 ¿Baymet AI usa machine learning?\n\nNo. El sistema de Baymet AI no usa machine learning ni redes neuronales. Usa un sistema de interpretación basado en reglas y una base de conocimiento estructurada.\n\n¿Qué significa eso?\n• Las reglas de interpretación están definidas por humanos basándose en conocimiento técnico real.\n• Las respuestas del asistente provienen de una base de conocimiento predefinida.\n• El sistema es predecible: ante la misma pregunta, dará la misma respuesta.\n\n¿Por qué este enfoque?\nPara un proyecto educativo y demostrativo, la confiabilidad y la transparencia son más importantes que la sofisticación. Un sistema basado en reglas claras es más fácil de explicar, auditar y corregir.\n\nEsto también evita que el sistema "invente" respuestas incorrectas, lo que podría ser peligroso en un contexto de seguridad ambiental.`
+  },
+
+  // ══════════════════════════════════════════
+  // 7. IMPACTO EN LA COMUNIDAD
+  // ══════════════════════════════════════════
+  {
+    tags: ['comunidad', 'ayuda', 'beneficio', 'cómo ayuda', 'para qué sirve', 'utilidad', 'impacto', 'jóvenes', 'educación comunidad', 'pescadores', 'familias', 'indigenas', 'kuna', 'embera'],
+    respuesta: `📌 VERSIÓN CORTA\nBaymet le da a la comunidad del Bayano algo que antes no tenía: información. Saber qué niveles de metano hay en su entorno, entender qué significa y poder tomar decisiones basadas en datos reales.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\n¿A quiénes beneficia Baymet?\n\n👨‍👩‍👧 Familias y pescadores\nAntes, los pescadores trabajaban sin saber si los niveles de gas cerca del agua eran seguros. Con el sistema de monitoreo, pueden tomar decisiones más informadas: cuándo ventilar una embarcación, cuándo alejarse de una zona, cuándo todo está bien.\n\n🧑‍🎓 Jóvenes y estudiantes\nUno de los pilares de Baymet es la educación. Los jóvenes de las comunidades cercanas al Bayano aprenden sobre cambio climático, metano y ciencia ambiental usando datos de su propio entorno. No es ciencia abstracta de un libro —es su río, su embalse, su comunidad.\n\n🏛️ Autoridades locales\nLos datos recopilados pueden ser útiles para que autoridades ambientales locales tengan evidencia para tomar decisiones sobre manejo del embalse y protección de las comunidades.\n\n🔬 La ciencia\nCada registro de metano del Bayano es un dato que no existía antes. A medida que se acumulan, se pueden identificar patrones: ¿cuándo emite más? ¿En qué zonas? ¿Con qué condiciones climáticas? Eso es conocimiento científico generado desde la comunidad misma.`
+  },
+  {
+    tags: ['educación ambiental', 'conciencia', 'enseñar', 'aprender', 'colegios', 'escuelas', 'niños', 'sensibilización'],
+    respuesta: `📌 EDUCACIÓN AMBIENTAL EN BAYMET\n\nUno de los tres pilares de Baymet es la educación. El proyecto cree que las comunidades toman mejores decisiones cuando entienden su entorno.\n\n¿Qué hace Baymet en educación?\n• Lleva el tema del metano a jóvenes con lenguaje claro y ejemplos locales.\n• Usa la aplicación como herramienta de aprendizaje interactivo.\n• Conecta la ciencia global del cambio climático con la realidad local del embalse.\n• Muestra que la tecnología ambiental no es solo para grandes laboratorios.\n\n¿Por qué importa educar a los jóvenes?\nLas comunidades que entienden su ambiente son las que mejor lo cuidan. Un joven que sabe que el fondo del embalse produce metano, que ese gas contribuye al calentamiento global, y que hay formas de medirlo y aprovecharlo, es un agente de cambio para su comunidad.\n\nBaymet busca que el conocimiento ambiental no sea exclusivo de científicos o técnicos, sino de todos.`
+  },
+
+  // ══════════════════════════════════════════
+  // 8. ENERGÍA Y SOSTENIBILIDAD
+  // ══════════════════════════════════════════
+  {
+    tags: ['energía', 'sostenible', 'renovable', 'biogás', 'electricidad', 'combustible', 'recurso', 'aprovechamiento', 'economía circular', 'potencial energético'],
+    respuesta: `📌 VERSIÓN CORTA\nEl metano que emite el Bayano actualmente se pierde en la atmósfera y contribuye al cambio climático. Si pudiera capturarse, podría usarse para generar electricidad o cocinar. Eso convertiría un problema ambiental en un recurso para la comunidad.\n\n─────────────────────────\n📖 VERSIÓN COMPLETA\n\n¿Cómo se convierte el metano en energía?\nEl metano es el componente principal del gas natural. Si se captura antes de llegar a la atmósfera, puede quemarse de manera controlada para:\n• Generar electricidad en turbinas o generadores.\n• Usarse directamente para cocinar o calentar agua.\n• Alimentar vehículos adaptados.\n\nEsto ya se hace con el gas de rellenos sanitarios (basureros) en muchos países. El principio es el mismo.\n\nConcepto de economía circular:\nEn lugar de ver el metano como un residuo o un problema, la economía circular lo ve como un recurso. Algo que "sobra" de un proceso (la descomposición orgánica) se convierte en insumo para otro (generación de energía). El problema se transforma en solución.\n\nPotencial real del Bayano:\nLos embalses tropicales con mucha materia orgánica pueden tener potencial de biogás significativo. Sin embargo, la tecnología para capturarlo en embalses abiertos es compleja y costosa. Baymet no propone hacerlo mañana, sino mostrar el concepto y medir si los niveles justifican explorarlo a futuro.\n\nLo que Baymet no promete:\nEste proyecto no afirma que ya existe un sistema de captura de energía en el Bayano. Es una etapa de investigación y demostración del concepto.`
+  },
+  {
+    tags: ['biogás', 'qué es biogás', 'gas de relleno', 'captura de gas', 'cómo se captura'],
+    respuesta: `📌 ¿QUÉ ES EL BIOGÁS?\n\nEl biogás es una mezcla de gases producida por la descomposición de materia orgánica sin oxígeno. Contiene principalmente metano (50–70%) y CO₂.\n\nSe produce en:\n• Rellenos sanitarios (basureros)\n• Plantas de tratamiento de aguas residuales\n• Digestores de residuos agrícolas\n• Embalses y pantanos\n\nCómo se usa:\nUna vez capturado y purificado, el biogás se puede quemar directamente para cocinar, o en generadores para producir electricidad. En muchos países ya existen plantas que convierten los gases de basureros en energía para miles de hogares.\n\nConexión con Baymet:\nEl metano que emite el embalse del Bayano es técnicamente biogás. La idea de Baymet es explorar si, a futuro, ese gas podría capturarse y aprovecharse en lugar de escapar libremente a la atmósfera.`
+  },
+
+  // ══════════════════════════════════════════
+  // 9. QUÉ PUEDE HACER LA COMUNIDAD
+  // ══════════════════════════════════════════
+  {
+    tags: ['qué puedo hacer', 'qué puede hacer la comunidad', 'acciones', 'participar', 'ayudar', 'contribuir', 'cómo ayudo', 'qué hacemos', 'soluciones'],
+    respuesta: `📌 ¿QUÉ PUEDE HACER LA COMUNIDAD?\n\nNo hay que ser científico para contribuir. Hay acciones simples y concretas que cualquier persona puede tomar:\n\n👁️ OBSERVAR\n• Nota si hay burbujas inusuales en la superficie del agua.\n• Observa si hay olores distintos cerca del embalse.\n• Reporta cambios al equipo de Baymet.\n\n📚 APRENDER Y COMPARTIR\n• Usa esta aplicación para entender los datos.\n• Comparte lo que aprendiste con familiares y vecinos.\n• Habla con jóvenes sobre cambio climático usando ejemplos locales.\n\n💡 BUENAS PRÁCTICAS\n• No quemes basura cerca del agua (produce gases adicionales).\n• Evita tirar residuos orgánicos al embalse.\n• Si estás en una embarcación cerrada con motor, ventila regularmente.\n\n🤝 PARTICIPAR\n• Apoya iniciativas de educación ambiental en tu comunidad.\n• Si tu escuela o comunidad quiere usar el sistema Baymet, es posible.\n• La ciencia ciudadana funciona cuando más personas participan.\n\nCada acción pequeña suma. La conciencia ambiental empieza con entender lo que tienes cerca.`
+  },
+
+  // ══════════════════════════════════════════
+  // 10. EL EMBALSE DEL BAYANO
+  // ══════════════════════════════════════════
+  {
+    tags: ['embalse', 'bayano', 'lago', 'represa', 'río bayano', 'cuándo se construyó', 'historia bayano', 'datos bayano'],
+    respuesta: `📌 EL EMBALSE DEL BAYANO\n\nDatos básicos:\n• Ubicación: Provincia de Panamá y Darién, República de Panamá\n• Construido: 1976, represando el río Bayano\n• Área: aproximadamente 350 km²\n• Capacidad: genera cerca de 300 MW de electricidad hidroeléctrica\n• Profundidad media: varía según la época del año\n\n¿Por qué produce tanto metano?\nAl construir la represa, se inundaron miles de hectáreas de bosque tropical. Toda esa vegetación quedó bajo el agua. Sin oxígeno, no puede descomponerse de manera aeróbica (como la madera que se pudre al aire), sino anaeróbica, produciendo metano.\n\nPoblaciones cercanas:\nAlrededor del embalse viven comunidades indígenas Guna (Kuna) y Emberá, así como comunidades campesinas. Muchas dependen del embalse para su subsistencia —pesca, transporte, agua— y han convivido con sus emisiones sin información técnica disponible.\n\nImportancia estratégica:\nEl embalse es clave para el suministro eléctrico de Panamá. Su estudio también es importante para entender el impacto ambiental de las grandes obras hídricas en regiones tropicales.`
+  },
+
+  // ══════════════════════════════════════════
+  // FAQ — PREGUNTAS FRECUENTES
+  // ══════════════════════════════════════════
+  {
+    tags: ['la medición es exacta', 'exactitud sensor', 'qué tan confiable', 'es preciso el sensor', 'margen error'],
+    respuesta: `❓ ¿La medición es exacta?\n\nEl sensor de Baymet es un instrumento educativo y demostrativo. Ofrece lecturas indicativas confiables para identificar niveles generales, pero tiene limitaciones:\n• Puede verse afectado por temperatura y humedad.\n• Necesita calibración periódica.\n• No tiene la precisión de un instrumento de laboratorio certificado.\n\nPara los fines del proyecto —conciencia, educación y detección de tendencias— es suficientemente preciso. Para decisiones críticas de seguridad industrial, se requeriría equipo certificado.`
+  },
+  {
+    tags: ['se puede usar en otros lugares', 'otros embalses', 'escalar', 'reproducir', 'replicar', 'otros países', 'funciona en otro lado'],
+    respuesta: `❓ ¿Esto se puede usar en otros lugares?\n\nSí. El concepto es completamente replicable. Cualquier embalse, pantano o zona con potencial emisión de metano podría beneficiarse de un sistema similar.\n\nPanamá tiene varios embalses importantes (Gatún, Bayano, La Fortuna, Fortuna). La metodología de Baymet podría adaptarse a cada uno.\n\nA nivel regional, embalses en Brasil, Colombia, México y Costa Rica tienen características similares. El enfoque de monitoreo comunitario + educación + interpretación accesible es una necesidad global.\n\nBaymet demuestra que no se necesita un gran presupuesto para empezar a medir y entender el entorno.`
+  },
+  {
+    tags: ['cuánto cuesta', 'precio', 'costo del sistema', 'es caro', 'accesible', 'tecnología barata'],
+    respuesta: `❓ ¿Cuánto cuesta el sistema?\n\nUno de los objetivos de Baymet es demostrar que el monitoreo ambiental puede ser accesible. El prototipo utiliza componentes electrónicos de bajo costo disponibles comercialmente.\n\nBaymet no publica costos específicos en este momento, ya que el sistema sigue en fase de desarrollo y demostración. Lo importante es que el enfoque apunta a una tecnología replicable por comunidades y escuelas, no solo por grandes organizaciones.`
+  },
+  {
+    tags: ['cuánto dura', 'tiempo', 'duración proyecto', 'vigencia', 'plazo', 'a largo plazo'],
+    respuesta: `❓ ¿Cuánto tiempo lleva el proyecto?\n\nBaymet está en una etapa inicial de demostración y desarrollo. El objetivo a corto plazo es probar el sistema, recopilar datos y generar conciencia en la comunidad.\n\nA largo plazo, el proyecto aspira a:\n• Tener monitoreo continuo en puntos fijos del embalse.\n• Generar datos históricos para investigación.\n• Explorar colaboraciones con universidades e instituciones ambientales.\n• Expandir el componente educativo a más comunidades.\n\nEs un proyecto en crecimiento, no un producto terminado.`
+  },
+  {
+    tags: ['quién creó', 'quién hizo', 'autores', 'equipo', 'responsables', 'creadores', 'quién está detrás'],
+    respuesta: `❓ ¿Quién está detrás de Baymet?\n\nBaymet es una iniciativa desarrollada por jóvenes panameños comprometidos con el ambiente y la tecnología. El proyecto surge desde la comunidad, con el objetivo de demostrar que es posible hacer ciencia ambiental accesible.\n\nEl proyecto integra conocimientos de electrónica, programación, ciencias ambientales y comunicación para crear una herramienta que sirva a personas no técnicas.\n\nPor respeto a la privacidad del equipo, no se publican nombres individuales en esta plataforma. El enfoque está en el proyecto y su impacto, no en las personas.`
+  },
+  {
+    tags: ['por qué importa', 'importancia proyecto', 'por qué es relevante', 'vale la pena', 'para qué'],
+    respuesta: `❓ ¿Por qué importa Baymet?\n\nPorque resuelve un problema real que nadie estaba atendiendo: miles de personas viven cerca de un embalse que emite metano sin tener acceso a esa información.\n\nBaymet importa porque:\n• Traduce datos técnicos en información comprensible para cualquier persona.\n• Genera conciencia sobre una fuente de emisiones que normalmente no se discute.\n• Demuestra que la tecnología ambiental puede nacer desde comunidades locales.\n• Conecta el problema global del cambio climático con la realidad cotidiana del Bayano.\n• Abre la puerta a explorar el metano como recurso, no solo como problema.\n\nNo es el proyecto más grande del mundo. Pero parte de un lugar real, con datos reales, para personas reales.`
+  },
+  {
+    tags: ['qué tan grande', 'tamaño emisiones', 'cuánto metano', 'mucho metano', 'cantidad', 'toneladas'],
+    respuesta: `❓ ¿Cuánto metano emite el Bayano?\n\nNo existen datos públicos precisos sobre las emisiones totales del embalse del Bayano específicamente. Es parte de lo que Baymet busca empezar a entender.\n\nLo que sí sabemos:\n• Los embalses tropicales en general son emisores significativos de metano a nivel global.\n• Estudios en otros embalses latinoamericanos (como Tucuruí en Brasil) han mostrado emisiones importantes.\n• El Bayano tiene condiciones propicias: agua cálida, gran cantidad de materia orgánica sumergida, poca profundidad en algunas zonas.\n\nBaymet no puede dar una cifra total sin más datos. Por eso el monitoreo continuo es importante.`
+  },
+  {
+    tags: ['diferencia riesgo inmediato largo plazo', 'riesgo inmediato', 'riesgo largo plazo', 'cuándo afecta', 'salud vs clima'],
+    respuesta: `❓ ¿El metano afecta la salud ahora o es un problema futuro?\n\nAmbas cosas, en contextos distintos:\n\n🔴 RIESGO INMEDIATO (para la salud):\nSolo cuando la concentración es muy alta en un espacio cerrado. En espacios abiertos como el embalse, incluso niveles elevados raramente representan peligro inmediato para la salud.\n\n🌍 RIESGO A LARGO PLAZO (para el clima):\nCada molécula de metano que llega a la atmósfera contribuye al efecto invernadero durante ~12 años. Este es un riesgo global y acumulativo, no inmediato pero sí importante.\n\nResumen: Para las personas que viven cerca del Bayano hoy, el riesgo más probable es el de estar en una embarcación mal ventilada con niveles altos. El riesgo climático es real pero actúa a escala global y a lo largo de años.`
+  },
+  {
+    tags: ['qué pasa si ignoro', 'no monitorear', 'para qué medir', 'sin monitoreo', 'importa medir'],
+    respuesta: `❓ ¿Qué pasa si no se monitorea el metano?\n\nVarias cosas:\n\n• Las comunidades no saben si el entorno donde viven, pescan y trabajan presenta niveles preocupantes.\n• No hay datos para investigadores ni autoridades ambientales.\n• El metano sigue emitiendo a la atmósfera sin que nadie lo cuantifique.\n• Se pierde la oportunidad de estudiar si podría aprovecharse como recurso energético.\n\nEl monitoreo no soluciona el problema por sí solo, pero es el primer paso indispensable: no se puede mejorar lo que no se mide. Baymet representa ese primer paso.`
+  },
+
+  // ── Embalse del Bayano detallado ──
+  {
+    tags: ['embalse bayano y metano', 'por qué el bayano emite', 'relación bayano metano', 'embalse produce gas'],
+    respuesta: `📌 ¿Por qué el embalse del Bayano produce metano?\n\nCuando se construyó la represa del Bayano en 1976, el agua subió lentamente e inundó una enorme extensión de selva tropical panameña. Miles de hectáreas de árboles, plantas y suelo orgánico quedaron bajo el agua.\n\nEse material vegetal no desapareció. Quedó en el fondo del embalse, donde no hay oxígeno suficiente para una descomposición normal. En esas condiciones, las bacterias metanógenas lo descomponen lentamente, liberando metano.\n\nEste proceso:\n• Es continuo — lleva décadas y continuará por mucho tiempo.\n• Es mayor en zonas poco profundas con mucho sedimento.\n• Aumenta con la temperatura — los meses más cálidos pueden tener más emisiones.\n• Produce burbujas visibles en algunas zonas del embalse.\n\nEl resultado: un lago hermoso que por debajo libera un gas invisible con impacto climático real. Medir eso es el corazón del proyecto Baymet.`
+  }
+
+];
+
+// Función de interpretación de intención
+function encontrarRespuesta(input) {
+  const texto = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+  let mejorMatch = null;
+  let mejorPuntaje = 0;
+
+  for (const entrada of KB) {
+    let puntaje = 0;
+    for (const tag of entrada.tags) {
+      const tagNorm = tag.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (texto.includes(tagNorm)) {
+        puntaje += tagNorm.split(' ').length;
+      }
+      for (const palabra of tagNorm.split(' ')) {
+        if (palabra.length > 3 && texto.includes(palabra)) puntaje += 0.5;
+      }
+    }
+    if (puntaje > mejorPuntaje) {
+      mejorPuntaje = puntaje;
+      mejorMatch = entrada;
+    }
+  }
+
+  if (mejorPuntaje > 0) return { texto: mejorMatch.respuesta, triste: false };
+
+  // No sabe — Bayanito triste
+  return {
+    triste: true,
+    texto: `Esa pregunta me agarró fuera del agua... 🌊\n\nTodavía no tengo información sobre ese tema en mi base de conocimiento. Soy Bayanito y me especializo en:\n• El proyecto Baymet\n• El metano y sus riesgos\n• El embalse del Bayano\n• Cambio climático\n• Energía y sostenibilidad\n\n¡Pregúntame sobre esos temas y haré mi mejor esfuerzo! 🦦`
+  };
+}
+
+// ── UI del Chat ──
+function agregarMensaje(texto, esUsuario, triste = false) {
+  const container = document.getElementById('chat-messages');
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + (esUsuario ? 'msg-user' : 'msg-bot');
+  const hora = new Date().toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+  const html = texto.replace(/\n/g, '<br>').replace(/• /g, '&nbsp;&nbsp;• ');
+
+  if (!esUsuario) {
+    // Avatar de Bayanito junto al mensaje
+    const avatarSrc = '/mnt/user-data/uploads/1777276568416_image.png';
+    const filtro = triste
+      ? 'grayscale(60%) brightness(0.85) sepia(0.3)'
+      : 'none';
+    const emojiExtra = triste ? '<div style="font-size:11px;color:#9ca3af;margin-top:2px;text-align:center;">😢</div>' : '';
+    msg.innerHTML = `
+      <div style="display:flex;align-items:flex-end;gap:8px;">
+        <div style="flex-shrink:0;text-align:center;">
+          <img src="${avatarSrc}" alt="Bayanito"
+            style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid ${triste ? '#d1d5db' : 'rgba(76,175,80,0.5)'};filter:${filtro};transition:filter 0.4s;"
+            onerror="this.style.display='none'">
+          ${emojiExtra}
+        </div>
+        <div>
+          <div class="msg-bubble" style="${triste ? 'background:#f3f4f6;color:#6b7280;border:1px dashed #d1d5db;' : ''}">${html}</div>
+          <div class="msg-time">${hora}</div>
+        </div>
+      </div>`;
+  } else {
+    msg.innerHTML = `
+      <div class="msg-bubble">${html}</div>
+      <div class="msg-time">${hora}</div>`;
+  }
+
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+}
+
+function mostrarTyping() {
+  document.getElementById('typing-indicator').classList.add('visible');
+  document.getElementById('chat-messages').scrollTop = 99999;
+}
+function ocultarTyping() {
+  document.getElementById('typing-indicator').classList.remove('visible');
+}
+
+function enviarMensaje() {
+  const input = document.getElementById('chat-input');
+  const texto = input.value.trim();
+  if (!texto) return;
+  input.value = '';
+  agregarMensaje(texto, true);
+  mostrarTyping();
+  const delay = 700 + Math.random() * 600;
+  setTimeout(() => {
+    ocultarTyping();
+    const resultado = encontrarRespuesta(texto);
+    agregarMensaje(resultado.texto, false, resultado.triste);
+  }, delay);
+}
+
+function enviarChip(el) {
+  const texto = el.textContent;
+  document.getElementById('chat-input').value = texto;
+  enviarMensaje();
+}
+
+// ── Mensaje inicial de Bayanito ──
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    agregarMensaje('¡Hola! Soy Bayanito, tu guía del embalse del Bayano. 🦦\n\nPuedo contarte sobre el proyecto Baymet, el metano, el cambio climático y cómo todo esto afecta a nuestra comunidad. ¡Pregúntame lo que quieras!', false, false);
+  }, 500);
+});
+</script>
+</body>
+</html>
