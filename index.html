@@ -2,8 +2,18 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="theme-color" content="#1B3C73">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Baymet AI">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Baymet AI — Sistema de simulación de monitoreo inteligente de metano en el embalse del Bayano, Panamá.">
 <title>Baymet AI — Monitor Inteligente de Metano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -956,25 +966,16 @@
   }
   .calc-stat-label { font-size: 11px; color: var(--gris-texto); margin-top: 3px; }
 
-  /* ── FLIPCARDS ── */
+  /* ── FLIPCARDS — Robusto sin 3D transform ── */
   .flipcard {
     height: 130px;
     cursor: pointer;
-    perspective: 800px;
-  }
-  .flipcard-inner {
-    width: 100%;
-    height: 100%;
     position: relative;
-    transition: transform 0.55s cubic-bezier(0.4,0.2,0.2,1);
-    transform-style: preserve-3d;
   }
-  .flipcard.flipped .flipcard-inner { transform: rotateY(180deg); }
   .flipcard-front, .flipcard-back {
     position: absolute;
     inset: 0;
     border-radius: var(--radius-md);
-    backface-visibility: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -982,21 +983,38 @@
     padding: 0.75rem;
     text-align: center;
     border: 1px solid var(--gris-medio);
+    overflow: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
   .flipcard-front {
     background: linear-gradient(135deg, var(--azul), var(--verde-oscuro));
     color: white;
+    opacity: 1;
+    transform: scale(1);
+    z-index: 2;
+    pointer-events: auto;
   }
-  .flipcard-front .fc-emoji { font-size: 1.8rem; margin-bottom: 6px; }
-  .flipcard-front .fc-hint { font-size: 11px; opacity: 0.7; }
   .flipcard-back {
     background: white;
-    transform: rotateY(180deg);
-    font-size: 0.8rem;
     color: var(--texto-oscuro);
+    opacity: 0;
+    transform: scale(0.92);
+    z-index: 1;
+    font-size: 0.8rem;
     line-height: 1.4;
+    pointer-events: none;
   }
-  .flipcard-back strong { color: var(--verde-oscuro); font-size: 0.85rem; display: block; margin-bottom: 4px; }
+  .flipcard-back strong {
+    color: var(--verde-oscuro);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .flipcard-front .fc-emoji { font-size: 1.8rem; margin-bottom: 6px; }
+  .flipcard-front .fc-hint  { font-size: 11px; opacity: 0.7; }
+  /* Modo oscuro */
+  .dark .flipcard-back { background: #2d3348; color: #f1f5f9; border-color: #3d4a6a; }
+  .dark .flipcard-back strong { color: #86efac; }
 
   /* ── ESCENARIOS MONITOR ── */
   .scenario-btn {
@@ -1013,6 +1031,442 @@
   }
   .scenario-btn:hover { border-color: var(--verde-oscuro); color: var(--verde-oscuro); }
   .scenario-btn.active { background: var(--verde-oscuro); color: white; border-color: var(--verde-oscuro); }
+
+  /* ══════════════════════════════════════════════════
+     CROSS-PLATFORM — Compatible con cualquier dispositivo
+  ══════════════════════════════════════════════════ */
+
+  /* ── Fuente fallback offline (Google Fonts puede no cargar) ── */
+  body {
+    font-family: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+  .logo-text, .card-title, .hero h1, .edu-section-title,
+  .stat-mini-num, .meter-number, .flipcard-inner, .tl-year,
+  h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* ── Evitar zoom en inputs en iOS Safari ── */
+  input[type="number"],
+  input[type="text"],
+  input[type="range"],
+  .chat-input,
+  select, textarea {
+    font-size: 16px !important; /* iOS no hace zoom si font-size >= 16px */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Evitar highlight azul al tocar en móvil ── */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* ── Mejorar scroll en iOS ── */
+  .chat-messages, main, body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Botones táctiles más grandes (mínimo 44px Apple HIG) ── */
+  .btn-primary, .btn-secondary, .chat-send,
+  .scenario-btn, .quiz-option, .chip {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .chip { min-height: 36px; } /* chips más pequeños se aceptan */
+
+  /* ── Prevenir selección de texto en elementos interactivos ── */
+  .flipcard, .tl-item, .chart-bar-wrap,
+  nav a, .scenario-btn, .quiz-option {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* ── Backface fix para Safari (flipcards) ── */
+  .flipcard-front, .flipcard-back {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+  }
+  .flipcard-inner {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+  .flipcard.flipped .flipcard-inner {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+  }
+
+  /* ── Smooth scroll nativo ── */
+  html { scroll-behavior: smooth; }
+
+  /* ── Inputs range cross-browser ── */
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 6px;
+    background: var(--gris-medio);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--verde-oscuro);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--verde-oscuro);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  input[type=range]::-ms-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--verde-oscuro);
+    cursor: pointer;
+  }
+
+  /* ── Tablas responsivas: scroll horizontal en móvil ── */
+  .risk-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .risk-table { min-width: 340px; }
+
+  /* ── Imágenes responsivas ── */
+  img { max-width: 100%; height: auto; display: block; }
+
+  /* ── SVG no overflow ── */
+  svg { overflow: hidden; }
+
+  /* ── Posición safe-area para iPhone con notch / Dynamic Island ── */
+  header {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  footer {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+  main {
+    padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+    padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+  }
+
+  /* ══════════════════════════════════════════
+     MODO OSCURO — Controlado por clase .dark
+     (toggle manual, independiente del OS)
+  ══════════════════════════════════════════ */
+  .dark {
+    --gris-claro: #1a1f2e;
+    --gris-medio: #2d3348;
+    --blanco: #1e2538;
+    --texto-oscuro: #f1f5f9;
+    --gris-texto: #94a3b8;
+    --shadow-card: 0 2px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.25);
+    background: #111827;
+  }
+  .dark body { background: #111827; }
+  .dark .card,
+  .dark .info-card { background: #1e2538 !important; border-color: #2d3348 !important; color: #f1f5f9; }
+  .dark .card-title,
+  .dark .card-subtitle { color: #f1f5f9; }
+  .dark .card-subtitle { color: #94a3b8 !important; }
+  .dark .hero { background: linear-gradient(135deg, #0a1628 0%, #0B6E4F 100%); }
+  .dark .chat-container { background: #1e2538; border-color: #2d3348; }
+  .dark .chat-messages  { background: #1e2538; }
+  .dark .msg-bot .msg-bubble { background: #2d3348; color: #f1f5f9; }
+  .dark .chat-input { background: #2d3348; color: #f1f5f9; border-color: #3d4a6a; }
+  .dark .chat-input::placeholder { color: #64748b; }
+  .dark .chat-input-area,
+  .dark .chat-suggestions { background: #1e2538; border-color: #2d3348; }
+  .dark .chip { background: #2d3348; color: #86efac; border-color: #3d4a6a; }
+  .dark .chip:hover { background: #0B6E4F; color: white; }
+  .dark .resultado-card { background: #2d3348; color: #f1f5f9; }
+  .dark .resultado-texto { color: #cbd5e1; }
+  .dark .recs-list li { color: #cbd5e1; }
+  .dark .stat-mini { background: #2d3348; }
+  .dark .stat-mini-label { color: #94a3b8; }
+  .dark .status-item { background: #2d3348; }
+  .dark .status-item-label { color: #94a3b8; }
+  .dark .hist-item { background: #2d3348; color: #94a3b8; }
+  .dark .hist-item:hover { background: #3d4a6a; }
+  .dark .hist-val { color: #f1f5f9; }
+  .dark .nivel-bar { background: #2d3348; }
+  .dark .nivel-bar-label,
+  .dark .nivel-ticks span,
+  .dark .nivel-ticks { color: #94a3b8; }
+  .dark .loading-label { color: #94a3b8; }
+  .dark .quiz-option { background: #2d3348; border-color: #3d4a6a; color: #f1f5f9; }
+  .dark .quiz-option:hover:not(.disabled) { background: #0B6E4F; border-color: #0B6E4F; }
+  .dark .quiz-option.correct { background: #14532d; border-color: #22c55e; color: #86efac; }
+  .dark .quiz-option.wrong   { background: #450a0a; border-color: #ef4444; color: #fca5a5; }
+  .dark #quiz-progress-wrap .nivel-bar { background: #2d3348; }
+  .dark #quiz-q-label,
+  .dark #quiz-score-label { color: #94a3b8; }
+  .dark #quiz-question { color: #f1f5f9; }
+  .dark #quiz-final-msg { color: #94a3b8; }
+  /* Flipcards en modo oscuro — manejado directamente en .flipcard-back */
+  /* Timeline interactiva */
+  .dark .tl-content { background: #2d3348 !important; border-color: #3d4a6a !important; }
+  .dark .tl-title { color: #f1f5f9; }
+  .dark .tl-desc { color: #94a3b8; }
+  .dark .tl-dot { border-color: #111827; }
+  /* Calculadora */
+  .dark .calc-stat { background: #2d3348; }
+  .dark .calc-stat-label { color: #94a3b8; }
+  /* Gráfico */
+  .dark #gas-info-box { background: #2d3348; color: #f1f5f9; border-color: #3d4a6a; }
+  .dark .chart-bar-label { color: #94a3b8; }
+  /* Escenarios */
+  .dark .scenario-btn { background: #2d3348; border-color: #3d4a6a; color: #f1f5f9; }
+  .dark .scenario-btn:hover { border-color: #4CAF50; color: #86efac; }
+  .dark .scenario-btn.active { background: #0B6E4F; color: white; border-color: #0B6E4F; }
+  /* Alerts */
+  .dark .alert-banner.info    { background: #1e3a5f; border-color: #2563eb; color: #93c5fd; }
+  .dark .alert-banner.warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
+  .dark .alert-banner.danger  { background: #450a0a; border-color: #ef4444; color: #fca5a5; }
+  /* Tabla de riesgo */
+  .dark .risk-table th { background: #2d3348; color: #94a3b8; }
+  .dark .risk-table td { border-color: #2d3348; color: #f1f5f9; }
+  .dark .risk-table tr:hover td { background: #3d4a6a; }
+  /* Inputs */
+  .dark input[type="number"] { background: #2d3348; color: #f1f5f9; border-color: #3d4a6a; }
+  .dark input[type="range"]  { background: #2d3348; }
+  /* Barra de tagline */
+  .dark .header-tagline-bar { background: rgba(11,110,79,0.25); border-color: rgba(76,175,80,0.2); }
+  /* Educación */
+  .dark .edu-section-title { color: #f1f5f9; }
+  .dark .edu-section-sub   { color: #94a3b8; }
+  .dark .info-card h3 { color: #f1f5f9; }
+  .dark .info-card p  { color: #94a3b8; }
+  .dark .timeline-item p { color: #94a3b8; }
+  .dark .timeline-item h4 { color: #f1f5f9; }
+  /* Footer */
+  .dark footer { border-color: #2d3348; }
+  .dark .footer-logo { color: #86efac; }
+  /* Loading */
+  .dark #loading-wrap { color: #94a3b8; }
+  /* Meter */
+  .dark .meter-unit { color: #94a3b8; }
+  /* Hero eyebrow */
+  .dark .hero-eyebrow { color: #86efac; }
+  /* Resultado vacío */
+  .dark #resultado-wrap p { color: #64748b; }
+  /* Medidor ring default */
+  .dark .meter-ring { border-color: #2d3348; }
+
+
+  /* ── TABLET (768px – 1024px) ── */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    main { padding: 1.25rem; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .hero h1 { font-size: 1.8rem; }
+    .chat-container { height: 480px; }
+    .meter-value-wrap { width: 140px; height: 140px; }
+    #flipcards-wrap { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ── DESKTOP GRANDE (> 1200px) ── */
+  @media (min-width: 1200px) {
+    main { max-width: 1200px; }
+    .hero h1 { font-size: 2.6rem; }
+    .chat-container { height: 580px; }
+    #flipcards-wrap { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* ── MÓVIL (≤ 768px) — Completo ── */
+  @media (max-width: 768px) {
+    /* Header */
+    .header-inner { height: auto; padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .logo img { height: 34px; }
+    nav { width: 100%; justify-content: center; gap: 3px; order: 3; padding-bottom: 0.5rem; }
+    nav a { padding: 8px 10px; font-size: 12px; flex: 1; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+    .header-tagline-bar { font-size: 9.5px; padding: 4px 0.5rem; }
+
+    /* Main */
+    main { padding: 0.75rem; }
+
+    /* Hero */
+    .hero { padding: 1.25rem; margin-bottom: 1rem; border-radius: var(--radius-md); }
+    .hero-eyebrow { font-size: 10px; }
+    .hero h1 { font-size: 1.3rem; }
+    .hero p { font-size: 0.82rem; }
+
+    /* Grids */
+    .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 0.75rem; }
+
+    /* Cards */
+    .card { padding: 1rem; border-radius: var(--radius-md); }
+    .card-title { font-size: 0.95rem; }
+
+    /* Medidor */
+    .meter-display { padding: 0.75rem 0.5rem; }
+    .meter-value-wrap { width: 130px; height: 130px; }
+    .meter-number { font-size: 2rem; }
+
+    /* Input manual */
+    .input-manual { flex-wrap: wrap; gap: 6px; }
+    .input-manual label { width: 100%; font-size: 0.8rem; }
+    .input-manual input[type=number] { flex: 1; min-width: 80px; }
+
+    /* Botones */
+    .btn-group { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+    .btn-primary, .btn-secondary { width: 100%; padding: 0.7rem 1rem; text-align: center; }
+
+    /* Escenarios */
+    .scenario-btn { padding: 0.55rem 0.7rem; font-size: 0.78rem; }
+
+    /* Stats */
+    .stat-mini { padding: 0.65rem; }
+    .stat-mini-num { font-size: 1.25rem; }
+    .stat-mini-label { font-size: 10px; }
+    .status-grid { grid-template-columns: repeat(3,1fr); gap: 5px; }
+    .status-item { padding: 0.5rem 0.25rem; }
+    .status-item-val { font-size: 0.8rem; }
+    .status-item-label { font-size: 9px; }
+
+    /* Alert */
+    .alert-banner { font-size: 0.8rem; padding: 0.6rem 0.9rem; }
+
+    /* Historial */
+    .hist-item { font-size: 11px; padding: 5px 8px; }
+    .hist-val { min-width: 50px; }
+
+    /* Resultado */
+    .resultado-card { padding: 0.9rem; }
+    .resultado-titulo { font-size: 0.88rem; }
+    .resultado-texto { font-size: 0.82rem; }
+    .recs-list li { font-size: 0.8rem; }
+
+    /* Chat */
+    .chat-container { height: calc(100svh - 200px); min-height: 420px; border-radius: var(--radius-md); }
+    .chat-header { padding: 0.75rem 1rem; gap: 8px; }
+    .chat-header-info h3 { font-size: 0.85rem; }
+    .chat-header-info p { font-size: 10px; }
+    .chat-messages { padding: 0.75rem; gap: 0.6rem; }
+    .msg { max-width: 92%; }
+    .msg-bubble { font-size: 0.82rem; padding: 0.6rem 0.8rem; }
+    .msg-time { font-size: 9px; }
+    .chat-suggestions { padding: 0.4rem 0.6rem; gap: 4px; overflow-x: auto; flex-wrap: nowrap; }
+    .chip { font-size: 10.5px; padding: 6px 8px; flex-shrink: 0; }
+    .chat-input-area { padding: 0.6rem 0.75rem; gap: 6px; }
+    .chat-input { font-size: 0.875rem; padding: 0.5rem 0.75rem; }
+    .chat-send { width: 44px; height: 44px; flex-shrink: 0; }
+
+    /* Educación — fix completo móvil */
+    .edu-section-title { font-size: 1.15rem; }
+    .edu-section-sub { font-size: 0.82rem; margin-bottom: 1rem; }
+    .info-card { padding: 1rem; }
+    .info-card h3 { font-size: 0.9rem; }
+    .info-card p { font-size: 0.82rem; }
+    .info-icon { width: 38px; height: 38px; margin-bottom: 0.75rem; }
+
+    /* Tabla riesgo */
+    .risk-table { font-size: 0.78rem; }
+    .risk-table th, .risk-table td { padding: 7px 6px; }
+
+    /* Timeline estática */
+    .timeline-item h4 { font-size: 0.85rem; }
+    .timeline-item p  { font-size: 0.78rem; }
+
+    /* Timeline interactiva — full width en móvil */
+    .tl-item,
+    .tl-item:nth-child(odd) { flex-direction: row !important; text-align: left !important; }
+    .tl-content { max-width: calc(100% - 48px) !important; padding: 0.6rem 0.75rem; }
+    .tl-dot { margin: 0 0.6rem !important; }
+    .tl-year { font-size: 0.78rem; }
+    .tl-title { font-size: 0.82rem; }
+    .tl-desc  { font-size: 0.78rem; }
+
+    /* Quiz */
+    #quiz-options { grid-template-columns: 1fr !important; }
+    .quiz-option { min-height: 48px; font-size: 0.85rem; padding: 0.6rem 0.8rem; }
+    #quiz-question { font-size: 0.95rem; }
+
+    /* Gráfico barras — scroll horizontal */
+    #chart-bars-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
+    .chart-bar { width: 36px; }
+    .chart-bar-label { font-size: 9.5px; max-width: 60px; }
+    .chart-bar-val { font-size: 9.5px; }
+
+    /* Calculadora */
+    #calc-result { grid-template-columns: 1fr !important; gap: 0.5rem; }
+    .calc-stat { padding: 0.65rem; }
+    .calc-stat-num { font-size: 1.1rem; }
+    .calc-stat-label { font-size: 10px; }
+
+    /* Flipcards — 1 columna en móvil pequeño, 2 en más grande */
+    #flipcards-wrap { grid-template-columns: 1fr 1fr !important; gap: 0.5rem; }
+    .flipcard { height: 130px; }
+    .flipcard-front .fc-emoji { font-size: 1.5rem; margin-bottom: 4px; }
+    .flipcard-front div[style] { font-size: 0.75rem !important; }
+    .flipcard-front .fc-hint { font-size: 10px; }
+    .flipcard-back { font-size: 0.75rem; padding: 0.5rem; }
+    .flipcard-back strong { font-size: 0.78rem; }
+
+    /* Comparador gas — centrado y con scroll */
+    .gas-chart-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.5rem;
+      justify-content: flex-start !important;
+    }
+
+    /* Footer */
+    footer { padding: 1.25rem; margin-top: 2rem; }
+    footer a { font-size: 11px !important; padding: 6px 10px !important; }
+  }
+
+  /* ── iPhone SE / pantallas muy pequeñas (< 380px) ── */
+  @media (max-width: 380px) {
+    .header-inner { padding: 0.5rem 0.75rem; }
+    nav a { font-size: 11px; padding: 7px 6px; }
+    .hero h1 { font-size: 1.15rem; }
+    .meter-value-wrap { width: 110px; height: 110px; }
+    .meter-number { font-size: 1.7rem; }
+    .chat-container { height: calc(100svh - 180px); }
+    #flipcards-wrap { grid-template-columns: 1fr !important; }
+    .chart-bar { width: 32px; }
+  }
+
+  /* ── Landscape móvil ── */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .chat-container { height: calc(100svh - 120px); min-height: 300px; }
+    .hero { padding: 1rem; }
+    .hero h1 { font-size: 1.1rem; }
+    .meter-value-wrap { width: 100px; height: 100px; }
+    .meter-number { font-size: 1.6rem; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── Impresión ── */
+  @media print {
+    header, nav, .btn-group, .chat-container,
+    .chat-suggestions, footer, .scenario-btn,
+    #quiz-wrap, .flipcard, .chart-bar-wrap { display: none !important; }
+    body { background: white; font-size: 12pt; }
+    .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    main { padding: 0; }
+    .section { display: block !important; }
+    .hero { background: none; color: black; padding: 0; }
+    .hero h1 { color: #0B6E4F; }
+  }
+
+  /* ── Reducir animaciones si el usuario lo prefiere ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .flipcard-inner { transition: none; }
+    .meter-ring { animation: none; }
+    .dot { animation: none; }
+    .chat-online { animation: none; }
+    .typing-dot { animation: none; }
+  }
 
 </style>
 </head>
@@ -1035,6 +1489,12 @@
       <a onclick="showSection('asistente')">🦦 Bayanito IA</a>
       <a onclick="showSection('educacion')">Educación</a>
     </nav>
+    <button id="dark-toggle" onclick="toggleDark()" aria-label="Cambiar modo oscuro/claro"
+      style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:20px;
+             padding:6px 13px;cursor:pointer;font-size:16px;transition:all 0.2s;color:white;
+             display:flex;align-items:center;gap:6px;flex-shrink:0;min-height:36px;">
+      <span id="dark-icon">🌙</span>
+    </button>
   </div>
   <div class="header-tagline-bar">Adiós metano, <span>energía en mano</span> · Embalse del Bayano, Panamá 🇵🇦</div>
 </header>
@@ -1264,6 +1724,7 @@
       <div class="card">
         <div class="card-title">Tabla de niveles de riesgo</div>
         <div class="card-subtitle">Referencia técnica</div>
+        <div class="risk-table-wrap">
         <table class="risk-table">
           <thead>
             <tr>
@@ -1300,6 +1761,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         <p style="font-size: 11px; color: var(--gris-texto); margin-top: 0.75rem;">* Valores de referencia adaptados para comunidades ribereñas. El LIE (Límite Inferior de Explosividad) del metano es ~50,000 ppm.</p>
       </div>
 
@@ -1382,7 +1844,7 @@
     <div class="card" style="margin-bottom:1.5rem;">
       <div class="card-title">📊 Comparador: Potencia climática de los gases</div>
       <div class="card-subtitle">Haz clic en cada barra para aprender más</div>
-      <div style="display:flex;align-items:flex-end;gap:1rem;height:180px;padding:0.5rem 0 0;justify-content:center;flex-wrap:wrap;">
+      <div class="gas-chart-wrap" style="display:flex;align-items:flex-end;gap:1rem;height:180px;padding:0.5rem 0 0;justify-content:center;flex-wrap:wrap;overflow-x:auto;-webkit-overflow-scrolling:touch;">
         <!-- Barras interactivas -->
         <div class="chart-bar-wrap" onclick="showGasInfo('metano')">
           <div class="chart-bar" style="height:160px;background:linear-gradient(to top,#ef4444,#fca5a5);" data-gas="metano">
@@ -1503,6 +1965,29 @@
 // ═══════════════════════════════════════════════════
 // BAYMET AI — Sistema de interpretación de metano
 // ═══════════════════════════════════════════════════
+
+// ── Modo oscuro manual ──
+function toggleDark() {
+  const html = document.documentElement;
+  const isDark = html.classList.toggle('dark');
+  document.getElementById('dark-icon').textContent = isDark ? '☀️' : '🌙';
+  try { localStorage.setItem('baymet-dark', isDark ? '1' : '0'); } catch(e){}
+}
+
+// Restaurar preferencia guardada (o respetar OS si no hay preferencia guardada)
+(function initDarkMode() {
+  let pref = null;
+  try { pref = localStorage.getItem('baymet-dark'); } catch(e){}
+  const osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const shouldDark = pref !== null ? pref === '1' : osDark;
+  if (shouldDark) {
+    document.documentElement.classList.add('dark');
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.getElementById('dark-icon');
+      if (icon) icon.textContent = '☀️';
+    });
+  }
+})();
 
 // ── Navegación ──
 function showSection(id) {
@@ -2493,20 +2978,45 @@ function initFlipCards() {
   const wrap = document.getElementById('flipcards-wrap');
   if (!wrap) return;
   wrap.innerHTML = flipData.map((f, i) => `
-    <div class="flipcard" onclick="this.classList.toggle('flipped')">
-      <div class="flipcard-inner">
-        <div class="flipcard-front">
-          <div class="fc-emoji">${f.emoji}</div>
-          <div style="font-size:0.82rem;font-weight:700;margin-bottom:4px;">${f.front}</div>
-          <div class="fc-hint">👆 Toca para revelar</div>
-        </div>
-        <div class="flipcard-back">
-          <strong>${f.hint}</strong>
-          ${f.back}
-        </div>
+    <div class="flipcard" id="fc-${i}">
+      <div class="flipcard-front" onclick="flipCard(${i})">
+        <div class="fc-emoji">${f.emoji}</div>
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:4px;">${f.front}</div>
+        <div class="fc-hint">👆 Toca para revelar</div>
+      </div>
+      <div class="flipcard-back" onclick="flipCard(${i})">
+        <strong>${f.hint}</strong>
+        ${f.back}
       </div>
     </div>
   `).join('');
+}
+
+function flipCard(i) {
+  const card = document.getElementById('fc-' + i);
+  if (!card) return;
+  const front = card.querySelector('.flipcard-front');
+  const back  = card.querySelector('.flipcard-back');
+  const isFlipped = card.classList.toggle('flipped');
+  if (isFlipped) {
+    front.style.opacity = '0';
+    front.style.transform = 'scale(0.92)';
+    front.style.pointerEvents = 'none';
+    front.style.zIndex = '1';
+    back.style.opacity = '1';
+    back.style.transform = 'scale(1)';
+    back.style.pointerEvents = 'auto';
+    back.style.zIndex = '2';
+  } else {
+    front.style.opacity = '1';
+    front.style.transform = 'scale(1)';
+    front.style.pointerEvents = 'auto';
+    front.style.zIndex = '2';
+    back.style.opacity = '0';
+    back.style.transform = 'scale(0.92)';
+    back.style.pointerEvents = 'none';
+    back.style.zIndex = '1';
+  }
 }
 
 // ════════════════════════════════════════════
